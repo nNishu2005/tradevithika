@@ -1104,6 +1104,15 @@ class App {
     });
 
     const hash = window.location.hash || "#home";
+
+    // Google Analytics Single Page Application (SPA) Page View Tracking
+    if (typeof gtag === 'function' && window.GA_MEASUREMENT_ID && window.GA_MEASUREMENT_ID !== 'G-XXXXXXXXXX') {
+      gtag('config', window.GA_MEASUREMENT_ID, {
+        'page_path': hash,
+        'page_title': document.title || 'TradeVithika'
+      });
+    }
+
     this.currentUser = LocalDB.getLoggedUser();
 
     if (this.currentUser) {
@@ -1379,6 +1388,14 @@ class App {
         email: "admin@tradevithika.com"
       });
 
+      if (typeof gtag === 'function' && window.GA_MEASUREMENT_ID && window.GA_MEASUREMENT_ID !== 'G-XXXXXXXXXX') {
+        gtag('event', 'login', {
+          method: 'Email',
+          user_role: 'admin',
+          user_email: 'admin@tradevithika.com'
+        });
+      }
+
       this.showToast("Logged in successfully as Administrator");
       this.hideAuthModal();
       this.updateNavbar();
@@ -1397,6 +1414,16 @@ class App {
           name: matched.name,
           email: matched.email
         });
+
+        if (typeof gtag === 'function' && window.GA_MEASUREMENT_ID && window.GA_MEASUREMENT_ID !== 'G-XXXXXXXXXX') {
+          gtag('event', 'login', {
+            method: 'Email',
+            user_role: 'buyer',
+            user_name: matched.name,
+            user_email: matched.email
+          });
+        }
+
         this.showToast(`Logged in successfully as Buyer: ${matched.name}`);
         this.hideAuthModal();
         this.updateNavbar();
@@ -1418,6 +1445,15 @@ class App {
         });
         
         localStorage.setItem("tv_logged_supplier", matched.id);
+
+        if (typeof gtag === 'function' && window.GA_MEASUREMENT_ID && window.GA_MEASUREMENT_ID !== 'G-XXXXXXXXXX') {
+          gtag('event', 'login', {
+            method: 'Email',
+            user_role: 'supplier',
+            user_name: matched.name,
+            user_email: matched.email
+          });
+        }
 
         this.showToast(`Logged in successfully as Supplier: ${matched.name}`);
         this.hideAuthModal();
