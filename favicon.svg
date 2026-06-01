@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Top Dark Navy Plate -->
+  <path d="M26 22H60C62 22 63.5 23.5 63 25.5L59 34.5C58.5 36 57 37.5 55 37.5H21C19 37.5 17.5 36 18 34.5L22 25.5C22.5 23.5 24 22 26 22Z" fill="#081C36" />
+  <!-- Left Blue T Stem segment -->
+  <path d="M45 38H21C17 38 15 40 15 43L23 52H37V72L45 80V38Z" fill="#0062FF" />
+  <!-- Right Green Growth Arrow segment -->
+  <path d="M51 38V80L59 72V54C59 48 63 46 68 46C73 46 78 40 82 32L89 38L91 18L71 21L77 27C72 34 67 38 61 38H51Z" fill="#00B562" />
+</svg>
