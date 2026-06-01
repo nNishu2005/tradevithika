@@ -122,6 +122,22 @@
 </head>
 <body>
 
+  <!-- Premium Glassmorphism Preloader -->
+  <div id="preloader">
+    <div class="preloader-content">
+      <div class="preloader-logo">
+        <svg class="preloader-icon" viewBox="0 0 100 100" fill="none">
+          <path d="M26 22H60C62 22 63.5 23.5 63 25.5L59 34.5C58.5 36 57 37.5 55 37.5H21C19 37.5 17.5 36 18 34.5L22 25.5C22.5 23.5 24 22 26 22Z" fill="#081C36" />
+          <path d="M45 38H21C17 38 15 40 15 43L23 52H37V72L45 80V38Z" fill="#0062FF" />
+          <path d="M51 38V80L59 72V54C59 48 63 46 68 46C73 46 78 40 82 32L89 38L91 18L71 21L77 27C72 34 67 38 61 38H51Z" fill="#00B562" />
+        </svg>
+      </div>
+      <div class="preloader-spinner"></div>
+      <h2 class="preloader-title">TradeVithika</h2>
+      <p class="preloader-subtitle">Loading Secure B2B Workspace...</p>
+    </div>
+  </div>
+
   <!-- Sticky Navbar Wrapper -->
   <div class="navbar-wrapper">
     <div class="container">
@@ -302,5 +318,17 @@
 
   <!-- App Main Logic Controller -->
   <script src="app.js"></script>
+  <script>
+    // Smooth Fade-out Preloader once the entire workspace is loaded
+    window.addEventListener('load', function() {
+      const preloader = document.getElementById("preloader");
+      if (preloader) {
+        preloader.classList.add("fade-out");
+        setTimeout(() => {
+          preloader.remove();
+        }, 400);
+      }
+    });
+  </script>
 </body>
 </html>
