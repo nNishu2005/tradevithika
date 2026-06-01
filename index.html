@@ -182,6 +182,76 @@
     <!-- Router renders views here -->
   </main>
 
+  <!-- Terms & Conditions Section (SPA) -->
+  <div id="terms-section" class="container" style="display: none; padding-top: 60px; padding-bottom: 90px; max-width: 800px;">
+    <div class="section-header" style="text-align: center; margin-bottom: 40px;">
+      <h1 style="font-size: 32px; font-weight: 800; color: var(--charcoal); margin-bottom: 10px;">Terms & Conditions</h1>
+      <p style="color: var(--gray-medium); font-weight: 500;">Please read these terms carefully before accessing or using the TradeVithika B2B E-Commerce Marketplace.</p>
+    </div>
+
+    <div class="terms-card" style="background: var(--white); border: 1px solid var(--gray-border); padding: 40px; border-radius: var(--radius-lg); box-shadow: var(--shadow-premium);">
+      <div class="terms-section" style="margin-bottom: 30px;">
+        <h3 style="font-size: 18px; font-weight: 700; color: var(--saffron-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+          <span>⚖️</span> 1. Acceptance of Terms & Discovery Platform
+        </h3>
+        <p style="color: #4A5568; font-size: 14.5px; line-height: 1.7; margin-bottom: 10px;">
+          By accessing, browsing, or registering on the TradeVithika platform (hosted at nnishu2005.github.io/tradevithika/), you agree to be bound by these Terms & Conditions. TradeVithika operates strictly as an open B2B discovery and facilitation marketplace connecting wholesale buyers with verified agricultural commodity suppliers.
+        </p>
+      </div>
+
+      <div class="terms-section" style="margin-bottom: 30px;">
+        <h3 style="font-size: 18px; font-weight: 700; color: var(--saffron-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+          <span>🌾</span> 2. Direct B2B Transactions & Zero Commission (Phase 1)
+        </h3>
+        <p style="color: #4A5568; font-size: 14.5px; line-height: 1.7; margin-bottom: 10px;">
+          TradeVithika operates on a <strong>Direct-to-Merchant</strong> model. We are NOT commission brokers, agents, or trading intermediaries. 
+        </p>
+        <ul style="margin-left: 20px; color: #4A5568; font-size: 14.5px; line-height: 1.6; margin-bottom: 10px;">
+          <li><strong>0% Platform Commission:</strong> For the introductory period, all transactions made on this platform are completely free of platform charges. Suppliers retain 100% of their transaction value.</li>
+          <li><strong>Direct Negotiations:</strong> All negotiation sliders, message badges, and agreement confirmations correspond to direct, binding intents to trade between the specific Buyer and Supplier.</li>
+        </ul>
+      </div>
+
+      <div class="terms-section" style="margin-bottom: 30px;">
+        <h3 style="font-size: 18px; font-weight: 700; color: var(--saffron-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+          <span>💳</span> 3. Payment Processing & Direct Bank Transfer (Phase 1)
+        </h3>
+        <p style="color: #4A5568; font-size: 14.5px; line-height: 1.7; margin-bottom: 10px;">
+          In the current Phase 1 deployment, <strong>TradeVithika does NOT process, hold, or collect any payments</strong>. 
+        </p>
+        <ul style="margin-left: 20px; color: #4A5568; font-size: 14.5px; line-height: 1.6; margin-bottom: 10px;">
+          <li>Buyers must pay suppliers directly via corporate bank transfers (RTGS / NEFT / IMPS) using the verified supplier bank account listed on the generated Gold-Sealed Transaction Certificate.</li>
+          <li>Transactions are confirmed on the platform only after the buyer uploads the valid bank transaction receipt and the supplier confirms the direct receipt of funds.</li>
+          <li>TradeVithika holds zero liability for payment failures, bank transfer delays, or buyer defaults.</li>
+        </ul>
+      </div>
+
+      <div class="terms-section" style="margin-bottom: 30px;">
+        <h3 style="font-size: 18px; font-weight: 700; color: var(--saffron-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+          <span>🛡️</span> 4. KYC & Document Verification Sandbox
+        </h3>
+        <p style="color: #4A5568; font-size: 14.5px; line-height: 1.7; margin-bottom: 10px;">
+          Suppliers must upload authentic onboarding documents (GST registration, Mandi Licenses, or land registry receipts) to obtain a "Fully Verified" badge. TradeVithika runs structural integrity checks and virus sweeps in its onboarding vault. However, buyers are highly advised to perform their own physical quality checks at the supplier's warehouse or Mandi yard before initiating high-value transfers.
+        </p>
+      </div>
+
+      <div class="terms-section" style="margin-bottom: 30px;">
+        <h3 style="font-size: 18px; font-weight: 700; color: var(--saffron-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+          <span>⚠️</span> 5. Limitation of Liability & Scalability
+        </h3>
+        <p style="color: #4A5568; font-size: 14.5px; line-height: 1.7; margin-bottom: 10px;">
+          TradeVithika is not responsible for any disputes regarding crop quality, moisture content grades, logistics failures, supply shortages, or crop pricing fluctuations. The Mandi price tickers are gathered from the open OGD API and are provided for informational and reference purposes only. TradeVithika is designed as a highly scalable B2B marketplace capable of adding multiple industrial and trade categories in future scaling cycles.
+        </p>
+      </div>
+
+      <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--gray-border); text-align: center;">
+        <p style="color: var(--gray-medium); font-size: 12.5px; font-weight: 500;">
+          Last Updated: June 2026 | TradeVithika Compliance & Legal Operations
+        </p>
+      </div>
+    </div>
+  </div>
+
   <!-- Dual Authentication Modal Overlay -->
   <div id="auth-modal" class="modal-overlay">
     <div class="modal-content" style="max-width: 480px;">
@@ -299,6 +369,7 @@
             <li><a href="#how-it-works">How It Works</a></li>
             <li><a href="#how-it-works">FAQs</a></li>
             <li><a href="#register" id="footer-supplier-reg-link">Register as Vendor</a></li>
+            <li><a href="#terms">Terms & Conditions</a></li>
           </ul>
         </div>
 
@@ -332,6 +403,25 @@
         }, 400);
       }
     });
+
+    // SPA Route Handler for Terms & Conditions
+    function handleSPAHashRoutes() {
+      const hash = window.location.hash || "#home";
+      const termsSection = document.getElementById("terms-section");
+      const appRoot = document.getElementById("app-root");
+      
+      if (hash === "#terms") {
+        if (appRoot) appRoot.style.display = "none";
+        if (termsSection) termsSection.style.display = "block";
+        window.scrollTo(0, 0);
+      } else {
+        if (appRoot) appRoot.style.display = "block";
+        if (termsSection) termsSection.style.display = "none";
+      }
+    }
+
+    window.addEventListener('hashchange', handleSPAHashRoutes);
+    window.addEventListener('load', handleSPAHashRoutes); // initial run
   </script>
 </body>
 </html>
