@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /buyer-dashboard
+
+Sitemap: https://tradevithika.com/sitemap.xml

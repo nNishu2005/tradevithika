@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script>
+    window.addEventListener('error', function(e) {
+      var div = document.createElement('div');
+      div.style.position = 'fixed';
+      div.style.top = '0';
+      div.style.left = '0';
+      div.style.width = '100%';
+      div.style.background = 'red';
+      div.style.color = 'white';
+      div.style.padding = '20px';
+      div.style.zIndex = '99999';
+      div.style.fontFamily = 'monospace';
+      div.style.fontSize = '14px';
+      div.style.whiteSpace = 'pre-wrap';
+      div.innerText = '⚠️ CRITICAL RUNTIME ERROR:\n' + e.message + '\nFile: ' + e.filename + '\nLine: ' + e.lineno + ':' + e.colno + '\n\nStack:\n' + (e.error ? e.error.stack : '');
+      document.body.appendChild(div);
+    });
+    window.addEventListener('unhandledrejection', function(e) {
+      var div = document.createElement('div');
+      div.style.position = 'fixed';
+      div.style.top = '0';
+      div.style.left = '0';
+      div.style.width = '100%';
+      div.style.background = 'darkorange';
+      div.style.color = 'white';
+      div.style.padding = '20px';
+      div.style.zIndex = '99999';
+      div.style.fontFamily = 'monospace';
+      div.style.fontSize = '14px';
+      div.style.whiteSpace = 'pre-wrap';
+      div.innerText = '⚠️ UNHANDLED REJECTION:\n' + e.reason + '\n\nStack:\n' + (e.reason ? e.reason.stack : '');
+      document.body.appendChild(div);
+    });
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TradeVithika — India's B2B Agri Commodity Marketplace</title>
+  <meta name="description" content="Connect with verified soybean, wheat, chana & garlic suppliers across Madhya Pradesh. Trade directly with farmers and warehouse owners in MP.">
+  
+  <!-- SEO & Speed Optimization Headers -->
+  <link rel="canonical" href="https://tradevithika.com/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+
+  <!-- Open Graph / Facebook Metadata -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://tradevithika.com/">
+  <meta property="og:title" content="TradeVithika — Madhya Pradesh's Trusted B2B Crop Marketplace">
+  <meta property="og:description" content="Direct ex-warehouse bulk sourcing of Soybean, Lokwan Wheat, Chana & Garlic from MP aggregators. Lock prices with no broker fees.">
+  <meta property="og:image" content="https://tradevithika.com/hero_agri_commerce.png">
+
+  <!-- Twitter Metadata -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://tradevithika.com/">
+  <meta property="twitter:title" content="TradeVithika — Madhya Pradesh's Trusted B2B Crop Marketplace">
+  <meta property="twitter:description" content="Direct ex-warehouse bulk sourcing of Soybean, Lokwan Wheat, Chana & Garlic from MP aggregators. Lock prices with no broker fees.">
+  <meta property="twitter:image" content="https://tradevithika.com/hero_agri_commerce.png">
+
+  <!-- JSON-LD LocalBusiness & FAQ Structured Data Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "TradeVithika",
+    "image": "https://tradevithika.com/hero_agri_commerce.png",
+    "url": "https://tradevithika.com",
+    "telephone": "+91-XXXXXXXXXX",
+    "priceRange": "₹₹",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Bhopal",
+      "addressRegion": "Madhya Pradesh",
+      "addressCountry": "IN"
+    },
+    "description": "Connecting wholesale buyers with verified Soybean, Wheat, and Chana aggregators across Madhya Pradesh."
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [{
+      "@type": "Question",
+      "name": "What commodities can I buy on TradeVithika?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "TradeVithika supports MP's primary bulk commodities: Soybean (JS-335), Wheat (Lokwan & Sharbati), Chana (Gram), and Garlic (Lasun)."
+      }
+    }, {
+      "@type": "Question",
+      "name": "Is there a broker commission on B2B orders?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No, TradeVithika operates as an open discovery network. There are zero broker commissions, allowing buyers to secure ex-warehouse prices directly from suppliers."
+      }
+    }]
+  }
+  </script>
+
+  <!-- Chart.js CDN Library for Analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Supabase JS Client CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Sticky Navbar Wrapper -->
+  <div class="navbar-wrapper">
+    <div class="container">
+      <nav class="navbar">
+        <a href="#home" class="logo-container" id="nav-logo">
+          <svg class="logo-icon" viewBox="0 0 100 100" fill="none">
+            <!-- Top Dark Navy Plate -->
+            <path d="M26 22H60C62 22 63.5 23.5 63 25.5L59 34.5C58.5 36 57 37.5 55 37.5H21C19 37.5 17.5 36 18 34.5L22 25.5C22.5 23.5 24 22 26 22Z" fill="#081C36" />
+            <!-- Left Blue T Stem segment -->
+            <path d="M45 38H21C17 38 15 40 15 43L23 52H37V72L45 80V38Z" fill="#0062FF" />
+            <!-- Right Green Growth Arrow segment -->
+            <path d="M51 38V80L59 72V54C59 48 63 46 68 46C73 46 78 40 82 32L89 38L91 18L71 21L77 27C72 34 67 38 61 38H51Z" fill="#00B562" />
+          </svg>
+          TradeVithika
+        </a>
+
+        <!-- Central Dynamic Navigation Links -->
+        <ul class="nav-links" id="navbar-dynamic-links">
+          <!-- Injected dynamically based on role -->
+        </ul>
+
+        <!-- Right Side Nav Dynamic Actions -->
+        <div class="nav-actions" id="navbar-dynamic-actions">
+          <!-- Injected dynamically based on role -->
+        </div>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Live Commodity Price Ticker Banner -->
+  <div class="ticker-wrap">
+    <div class="ticker" id="live-ticker">
+      <!-- Injected Dynamically by JS -->
+    </div>
+  </div>
+
+  <!-- Dynamic Content Area -->
+  <main id="app-root">
+    <!-- Router renders views here -->
+  </main>
+
+  <!-- Dual Authentication Modal Overlay -->
+  <div id="auth-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 id="auth-modal-title" style="font-size: 20px;">Welcome to TradeVithika</h3>
+        <button class="modal-close" id="auth-modal-close">&times;</button>
+      </div>
+      
+      <!-- Tab Header -->
+      <div style="display:flex; background: var(--gray-light); padding: 4px; border-radius: var(--radius-sm); margin-bottom: 24px;">
+        <button class="role-btn active" id="auth-tab-buyer" style="flex: 1; text-align: center; border-radius: 4px;">Buyer</button>
+        <button class="role-btn" id="auth-tab-supplier" style="flex: 1; text-align: center; border-radius: 4px;">Supplier</button>
+      </div>
+
+      <!-- Auth Form Panels -->
+      <div id="auth-login-panel">
+        <form id="auth-login-form">
+          <div class="form-group">
+            <label id="auth-login-email-label">Email Address*</label>
+            <input type="email" id="auth-login-email" class="form-input" required placeholder="E.g. ramesh@flourmill.com">
+          </div>
+          <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label style="margin: 0;">Password*</label>
+              <a href="javascript:void(0)" id="auth-forgot-password-link" style="font-size: 12px; color: var(--saffron-primary); font-weight: 600;">Forgot Password?</a>
+            </div>
+            <input type="password" id="auth-login-password" class="form-input" required placeholder="Enter your password">
+          </div>
+          <button type="submit" class="btn btn-primary btn-full" id="auth-login-submit-btn" style="margin-top: 10px;">Sign In</button>
+          
+          <div style="text-align: center; margin-top: 16px; font-size: 13px; color: var(--gray-medium);">
+            Don't have an account? <a href="javascript:void(0)" id="auth-toggle-signup" style="color: var(--saffron-primary); font-weight: 600;">Sign Up Here</a>
+          </div>
+          <div style="text-align: center; margin-top: 12px; font-size: 12px;">
+            <a href="javascript:void(0)" id="auth-db-reset" style="color: var(--gray-medium); text-decoration: underline;">Trouble logging in? Reset database cache</a>
+          </div>
+        </form>
+      </div>
+
+      <div id="auth-signup-panel" style="display: none;">
+        <form id="auth-signup-form">
+          <!-- Common Fields -->
+          <div class="form-group">
+            <label id="auth-signup-name-label">Your Name / Business Name*</label>
+            <input type="text" id="auth-signup-name" class="form-input" required placeholder="E.g. Ramesh Shah">
+          </div>
+          <div class="form-group">
+            <label>Mobile Number*</label>
+            <input type="tel" id="auth-signup-phone" class="form-input" required placeholder="10-digit phone number">
+          </div>
+          <div class="form-group">
+            <label>Email Address*</label>
+            <input type="email" id="auth-signup-email" class="form-input" required placeholder="E.g. ramesh@flourmill.com">
+          </div>
+          <div class="form-group">
+            <label>Password*</label>
+            <input type="password" id="auth-signup-password" class="form-input" required placeholder="Min 6 characters">
+          </div>
+          
+          <!-- Role specific fields shown dynamically -->
+          <div id="auth-signup-buyer-fields">
+            <div class="form-group">
+              <label>Company / Mill Name*</label>
+              <input type="text" id="auth-signup-company" class="form-input" placeholder="E.g. Bhopal Flour Mills">
+            </div>
+            <div class="form-group">
+              <label>Delivery City*</label>
+              <input type="text" id="auth-signup-city" class="form-input" placeholder="E.g. Bhopal, Indore">
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-full" id="auth-signup-submit-btn" style="margin-top: 10px;">Register Account</button>
+          
+          <div style="text-align: center; margin-top: 16px; font-size: 13px; color: var(--gray-medium);">
+            Already have an account? <a href="javascript:void(0)" id="auth-toggle-login" style="color: var(--saffron-primary); font-weight: 600;">Sign In Here</a>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Sticky Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col" style="grid-column: 1/2;">
+          <a href="#home" class="logo-container" style="color:white; margin-bottom:16px;">
+            <svg class="logo-icon" viewBox="0 0 100 100" fill="none">
+              <!-- Top Dark Navy Plate -->
+              <path d="M26 22H60C62 22 63.5 23.5 63 25.5L59 34.5C58.5 36 57 37.5 55 37.5H21C19 37.5 17.5 36 18 34.5L22 25.5C22.5 23.5 24 22 26 22Z" fill="#081C36" />
+              <!-- Left Blue T Stem segment -->
+              <path d="M45 38H21C17 38 15 40 15 43L23 52H37V72L45 80V38Z" fill="#0062FF" />
+              <!-- Right Green Growth Arrow segment -->
+              <path d="M51 38V80L59 72V54C59 48 63 46 68 46C73 46 78 40 82 32L89 38L91 18L71 21L77 27C72 34 67 38 61 38H51Z" fill="#00B562" />
+            </svg>
+            TradeVithika
+          </a>
+          <p style="margin-top:10px;">Empowering wholesale grain, oilseed, and spice transactions with transparent direct communication. Connecting bulk processors directly to the sources.</p>
+        </div>
+        
+        <div class="footer-col">
+          <h4>Core Commodities</h4>
+          <ul class="footer-links">
+            <li><a href="#browse">Soybean / सोयाबीन</a></li>
+            <li><a href="#browse">Wheat / गेहूँ</a></li>
+            <li><a href="#browse">Chana / Chickpea</a></li>
+            <li><a href="#browse">Garlic / लहसुन</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Support & Trade</h4>
+          <ul class="footer-links">
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="#how-it-works">FAQs</a></li>
+            <li><a href="#register" id="footer-supplier-reg-link">Register as Vendor</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Contact & Location</h4>
+          <p>
+            <b>TradeVithika MP Office</b><br>
+            trade@tradevithika.com<br>
+            Bhopal, Madhya Pradesh, India
+          </p>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© 2026 TradeVithika. All Rights Reserved. Madhya Pradesh, India. Made with 🌾</span>
+        <span>Where India Trades</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- App Main Logic Controller -->
+  <script src="app.js"></script>
+</body>
+</html>
