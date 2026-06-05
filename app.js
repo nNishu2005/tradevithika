@@ -790,6 +790,9 @@ class LocalDB {
   static logout() {
     this.setLoggedUser(null);
     localStorage.removeItem("tv_logged_supplier");
+    if (supabase) {
+      supabase.auth.signOut().catch(err => console.warn("Supabase signOut error:", err));
+    }
   }
 
   static getLoggedSupplierId() {
@@ -1374,7 +1377,7 @@ class App {
     }
   }
 
-  static handleLoginSubmit(e) {
+  static async handleLoginSubmit(e) {
     e.preventDefault();
     const email = document.getElementById("auth-login-email").value.trim().toLowerCase();
     const pass = document.getElementById("auth-login-password").value;
@@ -1403,69 +1406,162 @@ class App {
       return;
     }
 
-    if (this.authRole === "buyer") {
-      const buyers = LocalDB.getBuyers();
-      const matched = buyers.find(b => b.email.toLowerCase() === email && b.password === pass);
-
-      if (matched) {
-        LocalDB.setLoggedUser({
-          id: matched.id,
-          role: "buyer",
-          name: matched.name,
-          email: matched.email
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: email,
+          password: pass
         });
 
-        if (typeof gtag === 'function' && window.GA_MEASUREMENT_ID && window.GA_MEASUREMENT_ID !== 'G-XXXXXXXXXX') {
-          gtag('event', 'login', {
-            method: 'Email',
-            user_role: 'buyer',
-            user_name: matched.name,
-            user_email: matched.email
-          });
+        if (error) {
+          this.showToast(error.message, true);
+          return;
         }
 
-        this.showToast(`Logged in successfully as Buyer: ${matched.name}`);
+        const userId = data.user.id;
+
+        // Try to find in suppliers first
+        let matchedSupplier = LocalDB.getSuppliers().find(s => s.id === userId || s.email.toLowerCase() === email);
+        if (!matchedSupplier) {
+          const { data: dbSup } = await supabase.from('suppliers').select('*').eq('id', userId).maybeSingle();
+          if (dbSup) {
+            matchedSupplier = {
+              id: dbSup.id,
+              name: dbSup.name,
+              email: dbSup.email,
+              contactPerson: dbSup.contact_person
+            };
+          }
+        }
+
+        if (matchedSupplier) {
+          LocalDB.setLoggedUser({
+            id: userId,
+            role: "supplier",
+            name: matchedSupplier.name,
+            email: email
+          });
+          localStorage.setItem("tv_logged_supplier", userId);
+
+          if (typeof gtag === 'function' && window.GA_MEASUREMENT_ID && window.GA_MEASUREMENT_ID !== 'G-XXXXXXXXXX') {
+            gtag('event', 'login', {
+              method: 'Email',
+              user_role: 'supplier',
+              user_name: matchedSupplier.name,
+              user_email: email
+            });
+          }
+
+          this.showToast(`Logged in successfully as Supplier: ${matchedSupplier.name}`);
+          this.hideAuthModal();
+          this.updateNavbar();
+          window.location.hash = "#dashboard";
+          return;
+        }
+
+        // Try to find in buyers next
+        let matchedBuyer = LocalDB.getBuyers().find(b => b.id === userId || b.email.toLowerCase() === email);
+        if (!matchedBuyer) {
+          const { data: dbBuyer } = await supabase.from('buyers').select('*').eq('id', userId).maybeSingle();
+          if (dbBuyer) {
+            matchedBuyer = {
+              id: dbBuyer.id,
+              name: dbBuyer.name,
+              email: dbBuyer.email,
+              companyName: dbBuyer.company_name
+            };
+          }
+        }
+
+        if (matchedBuyer) {
+          LocalDB.setLoggedUser({
+            id: userId,
+            role: "buyer",
+            name: matchedBuyer.name,
+            email: email
+          });
+
+          if (typeof gtag === 'function' && window.GA_MEASUREMENT_ID && window.GA_MEASUREMENT_ID !== 'G-XXXXXXXXXX') {
+            gtag('event', 'login', {
+              method: 'Email',
+              user_role: 'buyer',
+              user_name: matchedBuyer.name,
+              user_email: email
+            });
+          }
+
+          this.showToast(`Logged in successfully as Buyer: ${matchedBuyer.name}`);
+          this.hideAuthModal();
+          this.updateNavbar();
+          window.location.hash = "#buyer-dashboard";
+          return;
+        }
+
+        // If authenticated but no public profile exists in either table yet (fallback)
+        const role = this.authRole || "buyer";
+        LocalDB.setLoggedUser({
+          id: userId,
+          role: role,
+          name: email.split('@')[0],
+          email: email
+        });
+        if (role === "supplier") {
+          localStorage.setItem("tv_logged_supplier", userId);
+          window.location.hash = "#dashboard";
+        } else {
+          window.location.hash = "#buyer-dashboard";
+        }
+        this.showToast("Logged in successfully!");
         this.hideAuthModal();
         this.updateNavbar();
-        window.location.hash = "#buyer-dashboard";
-      } else {
-        this.showToast("Invalid credentials. Try: ramesh@flourmill.com / password", true);
+
+      } catch (e) {
+        this.showToast("Authentication error: " + e.message, true);
       }
-    } 
-    else if (this.authRole === "supplier") {
-      const suppliers = LocalDB.getSuppliers();
-      const matched = suppliers.find(s => s.email.toLowerCase() === email && s.password === pass);
+    } else {
+      // Offline fallback
+      if (this.authRole === "buyer") {
+        const buyers = LocalDB.getBuyers();
+        const matched = buyers.find(b => b.email.toLowerCase() === email && b.password === pass);
 
-      if (matched) {
-        LocalDB.setLoggedUser({
-          id: matched.id,
-          role: "supplier",
-          name: matched.name,
-          email: matched.email
-        });
-        
-        localStorage.setItem("tv_logged_supplier", matched.id);
-
-        if (typeof gtag === 'function' && window.GA_MEASUREMENT_ID && window.GA_MEASUREMENT_ID !== 'G-XXXXXXXXXX') {
-          gtag('event', 'login', {
-            method: 'Email',
-            user_role: 'supplier',
-            user_name: matched.name,
-            user_email: matched.email
+        if (matched) {
+          LocalDB.setLoggedUser({
+            id: matched.id,
+            role: "buyer",
+            name: matched.name,
+            email: matched.email
           });
+          this.showToast(`Logged in successfully as Buyer: ${matched.name}`);
+          this.hideAuthModal();
+          this.updateNavbar();
+          window.location.hash = "#buyer-dashboard";
+        } else {
+          this.showToast("Invalid credentials or offline database error.", true);
         }
+      } else if (this.authRole === "supplier") {
+        const suppliers = LocalDB.getSuppliers();
+        const matched = suppliers.find(s => s.email.toLowerCase() === email && s.password === pass);
 
-        this.showToast(`Logged in successfully as Supplier: ${matched.name}`);
-        this.hideAuthModal();
-        this.updateNavbar();
-        window.location.hash = "#dashboard";
-      } else {
-        this.showToast("Invalid credentials. Try: rajesh@agrotraders.com / password", true);
+        if (matched) {
+          LocalDB.setLoggedUser({
+            id: matched.id,
+            role: "supplier",
+            name: matched.name,
+            email: matched.email
+          });
+          localStorage.setItem("tv_logged_supplier", matched.id);
+          this.showToast(`Logged in successfully as Supplier: ${matched.name}`);
+          this.hideAuthModal();
+          this.updateNavbar();
+          window.location.hash = "#dashboard";
+        } else {
+          this.showToast("Invalid credentials or offline database error.", true);
+        }
       }
     }
   }
 
-  static handleSignupSubmit(e) {
+  static async handleSignupSubmit(e) {
     e.preventDefault();
     
     const name = document.getElementById("auth-signup-name").value.trim();
@@ -1477,34 +1573,80 @@ class App {
       const company = document.getElementById("auth-signup-company").value.trim();
       const city = document.getElementById("auth-signup-city").value.trim();
 
-      const newB = {
-        id: "buyer-" + Date.now(),
-        name: name,
-        companyName: company || name + " Grains",
-        phone: phone,
-        email: email,
-        password: password,
-        city: city || "Madhya Pradesh",
-        savedSuppliers: []
-      };
+      if (supabase) {
+        try {
+          const { data, error } = await supabase.auth.signUp({
+            email: email,
+            password: password
+          });
 
-      const buyers = LocalDB.getBuyers();
-      buyers.push(newB);
-      LocalDB.saveBuyers(buyers);
+          if (error) {
+            this.showToast(error.message, true);
+            return;
+          }
 
-      LocalDB.setLoggedUser({
-        id: newB.id,
-        role: "buyer",
-        name: newB.name,
-        email: newB.email
-      });
+          const userId = data.user.id;
+          const newB = {
+            id: userId,
+            name: name,
+            companyName: company || name + " Grains",
+            phone: phone,
+            email: email,
+            password: password,
+            city: city || "Madhya Pradesh",
+            savedSuppliers: []
+          };
 
-      this.showToast("Buyer Account registered successfully!");
-      this.hideAuthModal();
-      this.updateNavbar();
-      window.location.hash = "#buyer-dashboard";
+          const buyers = LocalDB.getBuyers();
+          buyers.push(newB);
+          LocalDB.saveBuyers(buyers);
+
+          LocalDB.setLoggedUser({
+            id: userId,
+            role: "buyer",
+            name: newB.name,
+            email: newB.email
+          });
+
+          this.showToast("Buyer Account registered successfully!");
+          this.hideAuthModal();
+          this.updateNavbar();
+          window.location.hash = "#buyer-dashboard";
+        } catch (err) {
+          this.showToast("Registration error: " + err.message, true);
+        }
+      } else {
+        // Local fallback
+        const userId = "buyer-" + Date.now();
+        const newB = {
+          id: userId,
+          name: name,
+          companyName: company || name + " Grains",
+          phone: phone,
+          email: email,
+          password: password,
+          city: city || "Madhya Pradesh",
+          savedSuppliers: []
+        };
+        const buyers = LocalDB.getBuyers();
+        buyers.push(newB);
+        LocalDB.saveBuyers(buyers);
+        LocalDB.setLoggedUser({
+          id: userId,
+          role: "buyer",
+          name: newB.name,
+          email: newB.email
+        });
+        this.showToast("Buyer Account registered (offline mode)!");
+        this.hideAuthModal();
+        this.updateNavbar();
+        window.location.hash = "#buyer-dashboard";
+      }
     } 
     else if (this.authRole === "supplier") {
+      // For suppliers, they fill basic info in modal, then proceed to wizard register
+      // Let's store password temporary so we can use it in Wizard step 3
+      this.tempSupplierRegPassword = password;
       this.hideAuthModal();
       window.location.hash = "#register";
     }
@@ -6019,7 +6161,7 @@ class App {
         this.renderRegStep(2);
       });
 
-      document.getElementById("reg-form-3").addEventListener("submit", (e) => {
+      document.getElementById("reg-form-3").addEventListener("submit", async (e) => {
         e.preventDefault();
         
         const pass = document.getElementById("reg-pass").value;
@@ -6030,63 +6172,139 @@ class App {
           return;
         }
 
-        const newSupId = "supplier-" + Date.now();
-        const newSupplierObj = {
-          id: newSupId,
-          name: this.regData.name,
-          contactPerson: this.regData.contactPerson,
-          phone: this.regData.phone,
-          email: this.regData.email,
-          password: pass, 
-          district: this.regData.district,
-          businessType: this.regData.businessType,
-          commodities: this.regData.commodities,
-          verified: "unverified",
-          rating: 5.0,
-          reviewsCount: 0,
-          responseTime: "8 hours",
-          responseRate: "100%",
-          totalInquiries: 0,
-          views: 1,
-          about: `Welcome to ${this.regData.name}! We supply bulk ${this.regData.commodities.join(' & ')} inside ${this.regData.district} district.`,
-          onboardingProgress: 25, 
-          docsUploaded: {
-            aadhaar: false,
-            gst: false,
-            fssai: false,
-            land: false
+        if (supabase) {
+          try {
+            const { data, error } = await supabase.auth.signUp({
+              email: this.regData.email,
+              password: pass
+            });
+
+            if (error) {
+              this.showToast(error.message, true);
+              return;
+            }
+
+            const newSupId = data.user.id;
+            const newSupplierObj = {
+              id: newSupId,
+              name: this.regData.name,
+              contactPerson: this.regData.contactPerson,
+              phone: this.regData.phone,
+              email: this.regData.email,
+              password: pass, 
+              district: this.regData.district,
+              businessType: this.regData.businessType,
+              commodities: this.regData.commodities,
+              verified: "unverified",
+              rating: 5.0,
+              reviewsCount: 0,
+              responseTime: "8 hours",
+              responseRate: "100%",
+              totalInquiries: 0,
+              views: 1,
+              about: `Welcome to ${this.regData.name}! We supply bulk ${this.regData.commodities.join(' & ')} inside ${this.regData.district} district.`,
+              onboardingProgress: 25, 
+              docsUploaded: {
+                aadhaar: false,
+                gst: false,
+                fssai: false,
+                land: false
+              }
+            };
+
+            const suppliers = LocalDB.getSuppliers();
+            suppliers.push(newSupplierObj);
+            LocalDB.saveSuppliers(suppliers);
+
+            LocalDB.setLoggedUser({
+              id: newSupId,
+              role: "supplier",
+              name: newSupplierObj.name,
+              email: newSupplierObj.email
+            });
+            
+            localStorage.setItem("tv_logged_supplier", newSupId);
+            this.loggedSupplier = newSupplierObj;
+
+            // Push welcoming notification
+            const notifications = LocalDB.getNotifications();
+            notifications.unshift({
+              id: "noti-" + Date.now(),
+              supplierId: newSupId,
+              title: "Welcome Supplier!",
+              text: "Welcome to TradeVithika VendorOS! Complete documents verification to earn green checkmarks.",
+              date: "Just now",
+              read: false
+            });
+            LocalDB.saveNotifications(notifications);
+
+            this.showToast("Supplier Account registered! Welcome to VendorOS.");
+            this.updateNavbar();
+            window.location.hash = "#dashboard";
+
+          } catch (err) {
+            this.showToast("Supplier registration failed: " + err.message, true);
           }
-        };
+        } else {
+          // Offline fallback
+          const newSupId = "supplier-" + Date.now();
+          const newSupplierObj = {
+            id: newSupId,
+            name: this.regData.name,
+            contactPerson: this.regData.contactPerson,
+            phone: this.regData.phone,
+            email: this.regData.email,
+            password: pass, 
+            district: this.regData.district,
+            businessType: this.regData.businessType,
+            commodities: this.regData.commodities,
+            verified: "unverified",
+            rating: 5.0,
+            reviewsCount: 0,
+            responseTime: "8 hours",
+            responseRate: "100%",
+            totalInquiries: 0,
+            views: 1,
+            about: `Welcome to ${this.regData.name}! We supply bulk ${this.regData.commodities.join(' & ')} inside ${this.regData.district} district.`,
+            onboardingProgress: 25, 
+            docsUploaded: {
+              aadhaar: false,
+              gst: false,
+              fssai: false,
+              land: false
+            }
+          };
 
-        const suppliers = LocalDB.getSuppliers();
-        suppliers.push(newSupplierObj);
-        LocalDB.saveSuppliers(suppliers);
+          const suppliers = LocalDB.getSuppliers();
+          suppliers.push(newSupplierObj);
+          LocalDB.saveSuppliers(suppliers);
 
-        LocalDB.setLoggedUser({
-          id: newSupId,
-          role: "supplier",
-          name: newSupplierObj.name,
-          email: newSupplierObj.email
-        });
-        
-        localStorage.setItem("tv_logged_supplier", newSupId);
-        this.loggedSupplier = newSupplierObj;
+          LocalDB.setLoggedUser({
+            id: newSupId,
+            role: "supplier",
+            name: newSupplierObj.name,
+            email: newSupplierObj.email
+          });
+          
+          localStorage.setItem("tv_logged_supplier", newSupId);
+          this.loggedSupplier = newSupplierObj;
 
-        // Push welcoming notification
-        const notifications = LocalDB.getNotifications();
-        notifications.unshift({
-          id: "noti-" + Date.now(),
-          supplierId: newSupId,
-          title: "Welcome Supplier!",
-          text: "Welcome to TradeVithika VendorOS! Complete documents verification to earn green checkmarks.",
-          date: "Just now",
-          read: false
-        });
-        LocalDB.saveNotifications(notifications);
+          // Push welcoming notification
+          const notifications = LocalDB.getNotifications();
+          notifications.unshift({
+            id: "noti-" + Date.now(),
+            supplierId: newSupId,
+            title: "Welcome Supplier!",
+            text: "Welcome to TradeVithika VendorOS! Complete documents verification to earn green checkmarks.",
+            date: "Just now",
+            read: false
+          });
+          LocalDB.saveNotifications(notifications);
 
-        this.showToast("Supplier Account registered! Welcome to VendorOS.");
-        this.updateNavbar();
-        window.location.hash = "#dashboard";
+          this.showToast("Supplier Account registered (offline mode)!");
+          this.updateNavbar();
+          window.location.hash = "#dashboard";
+        }
       });
     }
   }
