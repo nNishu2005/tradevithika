@@ -8,8 +8,8 @@
 */
 
 // --- SUPABASE CLOUD DATABASE CONNECTION ---
-const SUPABASE_URL = "https://ccabwgdkxnlkcqrptryw.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_Bt_Vf0V_y-MLd0tX5nssAQ_aeLLvFLi";
+const SUPABASE_URL = "https://nhakftxixhwrjpuqquzz.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_QQgTAOxL19IGGewvVDXA3w_weL83mAG";
 var supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
 // Initial Mock Database Seed Data
