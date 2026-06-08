@@ -1601,6 +1601,13 @@ class App {
           buyers.push(newB);
           LocalDB.saveBuyers(buyers);
 
+          // Check if email confirmation is enabled (data.session will be null)
+          if (!data.session) {
+            this.showToast("Verification email sent! Please check your inbox and verify your email before logging in.", false, 8000);
+            this.switchAuthMode("login");
+            return;
+          }
+
           LocalDB.setLoggedUser({
             id: userId,
             role: "buyer",
@@ -6215,6 +6222,17 @@ class App {
             const suppliers = LocalDB.getSuppliers();
             suppliers.push(newSupplierObj);
             LocalDB.saveSuppliers(suppliers);
+
+            // Check if email confirmation is enabled (data.session will be null)
+            if (!data.session) {
+              this.showToast("Verification email sent! Please check your inbox and verify your email before logging in.", false, 8000);
+              window.location.hash = "#home";
+              setTimeout(() => {
+                this.showAuthModal("supplier");
+                this.switchAuthMode("login");
+              }, 300);
+              return;
+            }
 
             LocalDB.setLoggedUser({
               id: newSupId,
