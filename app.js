@@ -12,6 +12,17 @@ const SUPABASE_URL = "https://nhakftxixhwrjpuqquzz.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_QQgTAOxL19IGGewvVDXA3w_weL83mAG";
 var supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
+// SECURITY FIX: XSS - HTML Sanitizer Utility Function
+function escapeHTML(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 // Initial Mock Database Seed Data
 const DEFAULT_SUPPLIERS = [
   {
@@ -960,7 +971,7 @@ class App {
         const changeClass = isUp ? "price-up" : "price-down";
         tickerHtml += `
           <div class="ticker-item">
-            <span>🌾 <b>${p.name}:</b> ${p.rate}/quintal</span>
+            <span>🌾 <b>${escapeHTML(p.name)}:</b> ${p.rate}/quintal</span> // SECURITY FIX: XSS
             <span class="${changeClass}">${p.change}</span>
           </div>
         `;
@@ -996,7 +1007,7 @@ class App {
         <li><a href="#dashboard" class="nav-sub-trigger" data-sub="documents">📄 Documents</a></li>
       `;
       this.navActionsContainer.innerHTML = `
-        <span style="font-size: 13.5px; font-weight:600; color:var(--forest-secondary);">🚜 ${this.currentUser.name}</span>
+        <span style="font-size: 13.5px; font-weight:600; color:var(--forest-secondary);">🚜 ${escapeHTML(this.currentUser.name)}</span> // SECURITY FIX: XSS
         <button class="btn btn-outline btn-sm" id="nav-logout-btn" style="border-radius:4px;">Logout</button>
       `;
 
@@ -1037,7 +1048,7 @@ class App {
         <li><a href="#buyer-dashboard" style="font-weight:600; color:var(--saffron-primary);">📋 My Inquiries (Dashboard)</a></li>
       `;
       this.navActionsContainer.innerHTML = `
-        <span style="font-size: 13.5px; font-weight:600; color:var(--saffron-primary);">🏢 ${this.currentUser.name}</span>
+        <span style="font-size: 13.5px; font-weight:600; color:var(--saffron-primary);">🏢 ${escapeHTML(this.currentUser.name)}</span> // SECURITY FIX: XSS
         <button class="btn btn-outline btn-sm" id="nav-logout-btn" style="border-radius:4px;">Logout</button>
       `;
 
@@ -1872,19 +1883,19 @@ class App {
         <div class="supplier-header">
           <div class="supplier-info">
             <h3>
-              ${s.name}
+              ${escapeHTML(s.name)} // SECURITY FIX: XSS
               <span class="verified-badge">✓ Verified</span>
             </h3>
-            <span class="supplier-location">📍 ${s.district}, Madhya Pradesh</span>
+            <span class="supplier-location">📍 ${escapeHTML(s.district)}, Madhya Pradesh</span> // SECURITY FIX: XSS
           </div>
           <span class="supplier-rating">⭐ ${s.rating}</span>
         </div>
         <div class="supplier-tags">
           ${s.commodities.map(c => `<span class="tag">${c}</span>`).join('')}
-          <span class="tag" style="background-color: var(--saffron-light); color: var(--saffron-primary); font-weight:600;">${s.businessType}</span>
+          <span class="tag" style="background-color: var(--saffron-light); color: var(--saffron-primary); font-weight:600;">${escapeHTML(s.businessType)}</span> // SECURITY FIX: XSS
         </div>
         <div class="supplier-meta-row">
-          <span>⚡ Replies in ${s.responseTime}</span>
+          <span>⚡ Replies in ${escapeHTML(s.responseTime)}</span> // SECURITY FIX: XSS
           <a href="#supplier-profile/${s.id}" class="btn btn-outline btn-sm" style="border-radius:4px;">View Profile</a>
         </div>
       </div>
@@ -2124,18 +2135,18 @@ class App {
       return `
         <div class="listing-card">
           <div class="listing-card-header">
-            <span class="commodity-pill ${l.commodity.toLowerCase()}-pill">${l.commodity} / ${l.hindiTitle}</span>
+            <span class="commodity-pill ${l.commodity.toLowerCase()}-pill">${escapeHTML(l.commodity)} / ${escapeHTML(l.hindiTitle)}</span> // SECURITY FIX: XSS
             <span class="listing-date">Posted ${l.postedDaysAgo} days ago</span>
           </div>
-          <h3>${l.title}</h3>
+          <h3>${escapeHTML(l.title)}</h3> // SECURITY FIX: XSS
           
           <div class="listing-card-supplier">
-            <b>${sup.name}</b>
+            <b>${escapeHTML(sup.name)}</b> // SECURITY FIX: XSS
             ${isVerified ? '<span class="verified-badge" style="padding:2px 8px; font-size:9px;">✓ Verified</span>' : '<span class="unverified-badge" style="padding:2px 8px; font-size:9px;">Unverified</span>'}
           </div>
           
           <div class="listing-location">
-            📍 ${l.district}, MP
+            📍 ${escapeHTML(l.district)}, MP // SECURITY FIX: XSS
           </div>
 
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; font-size:13px; background:var(--bg-light); padding:10px 12px; border-radius:6px; border:1px solid var(--gray-light);">
@@ -2160,13 +2171,13 @@ class App {
             </div>
             <div class="listing-spec-item">
               <span class="listing-spec-label">Moisture</span>
-              <span class="listing-spec-value">${l.moisture}</span>
+              <span class="listing-spec-value">${escapeHTML(l.moisture)}</span> // SECURITY FIX: XSS
             </div>
           </div>
           
           <div class="listing-secondary-specs">
-            <span>Grade: <b>${l.grade}</b></span>
-            <span>Delivery: <b>${l.delivery}</b></span>
+            <span>Grade: <b>${escapeHTML(l.grade)}</b></span> // SECURITY FIX: XSS
+            <span>Delivery: <b>${escapeHTML(l.delivery)}</b></span> // SECURITY FIX: XSS
           </div>
 
           ${dealBadgeHtml}
@@ -2235,7 +2246,7 @@ class App {
     this.appRoot.innerHTML = `
       <div class="container" style="padding-top: 30px;">
         <div class="breadcrumbs">
-          <a href="#home">Home</a> > <a href="#browse">Browse</a> > <span style="color:var(--charcoal); font-weight:600;">${listing.commodity}</span>
+          <a href="#home">Home</a> > <a href="#browse">Browse</a> > <span style="color:var(--charcoal); font-weight:600;">${escapeHTML(listing.commodity)}</span> // SECURITY FIX: XSS
         </div>
         
         <div class="detail-layout">
@@ -2243,7 +2254,7 @@ class App {
             <div class="gallery-container">
               <div class="main-image-mock ${themeClass}">
                 ${emoji}
-                <span class="main-image-bg-label">${listing.commodity} — Stock Photo</span>
+                <span class="main-image-bg-label">${escapeHTML(listing.commodity)} — Stock Photo</span> // SECURITY FIX: XSS
               </div>
               <div class="gallery-thumbs">
                 <div class="thumb-image-mock active">${emoji}</div>
@@ -2252,8 +2263,8 @@ class App {
               </div>
             </div>
             
-            <span class="commodity-pill ${listing.commodity.toLowerCase()}-pill" style="font-size:12px; padding:6px 12px;">${listing.commodity}</span>
-            <h1 style="font-size:32px; margin-top:12px; margin-bottom:20px;">${listing.title}</h1>
+            <span class="commodity-pill ${listing.commodity.toLowerCase()}-pill" style="font-size:12px; padding:6px 12px;">${escapeHTML(listing.commodity)}</span> // SECURITY FIX: XSS
+            <h1 style="font-size:32px; margin-top:12px; margin-bottom:20px;">${escapeHTML(listing.title)}</h1> // SECURITY FIX: XSS
             
             <!-- Specifications -->
             <div class="specifications-panel">
@@ -2261,15 +2272,15 @@ class App {
               <table class="specs-table">
                 <tr>
                   <td>Crop Variety</td>
-                  <td>${listing.variety}</td>
+                  <td>${escapeHTML(listing.variety)}</td> // SECURITY FIX: XSS
                 </tr>
                 <tr>
                   <td>Moisture Content</td>
-                  <td>${listing.moisture}</td>
+                  <td>${escapeHTML(listing.moisture)}</td> // SECURITY FIX: XSS
                 </tr>
                 <tr>
                   <td>Quality Grade</td>
-                  <td>${listing.grade}</td>
+                  <td>${escapeHTML(listing.grade)}</td> // SECURITY FIX: XSS
                 </tr>
                 <tr>
                   <td>Total Stock Volume</td>
@@ -2299,19 +2310,19 @@ class App {
                 ` : ''}
                 <tr>
                   <td>Packaging Details</td>
-                  <td>${listing.packaging}</td>
+                  <td>${escapeHTML(listing.packaging)}</td> // SECURITY FIX: XSS
                 </tr>
                 <tr>
                   <td>Terms of Delivery</td>
-                  <td>${listing.delivery}</td>
+                  <td>${escapeHTML(listing.delivery)}</td> // SECURITY FIX: XSS
                 </tr>
                 <tr>
                   <td>Harvesting Season</td>
-                  <td>${listing.harvestYear}</td>
+                  <td>${escapeHTML(listing.harvestYear)}</td> // SECURITY FIX: XSS
                 </tr>
                 <tr>
                   <td>Loading Location</td>
-                  <td>📍 ${listing.taluka}, ${listing.district}, MP</td>
+                  <td>📍 ${escapeHTML(listing.taluka)}, ${escapeHTML(listing.district)}, MP</td> // SECURITY FIX: XSS
                 </tr>
               </table>
             </div>
@@ -2319,7 +2330,7 @@ class App {
             <!-- Description -->
             <div class="description-panel">
               <h3 class="specs-title">Additional Details</h3>
-              <p class="description-text">${listing.description}</p>
+              <p class="description-text">${escapeHTML(listing.description)}</p> // SECURITY FIX: XSS
             </div>
           </div>
 
@@ -2328,19 +2339,19 @@ class App {
             <div class="supplier-detail-panel">
               <h3 class="form-title" style="border-bottom:1px solid var(--gray-border); padding-bottom:12px; margin-bottom:16px;">Supplier Details</h3>
               <div style="font-size:18px; font-weight:700; display:flex; align-items:center; gap:8px;">
-                ${supplier.name}
+                ${escapeHTML(supplier.name)} // SECURITY FIX: XSS
                 ${supplier.verified === "verified" ? '<span class="verified-badge">✓ Verified</span>' : ''}
               </div>
-              <span class="supplier-location">📍 ${supplier.district}, MP</span>
+              <span class="supplier-location">📍 ${escapeHTML(supplier.district)}, MP</span> // SECURITY FIX: XSS
               
               <div style="margin-top:16px; font-size:14px; color:var(--gray-medium); display:flex; flex-direction:column; gap:8px;">
                 <span>⭐ Rating: <b>${supplier.rating} / 5.0</b></span>
-                <span>⚡ Response Rate: <b>${supplier.responseRate}</b></span>
-                <span>⏱️ Average Response: <b>Usually within ${supplier.responseTime}</b></span>
+                <span>⚡ Response Rate: <b>${escapeHTML(supplier.responseRate)}</b></span> // SECURITY FIX: XSS
+                <span>⏱️ Average Response: <b>Usually within ${escapeHTML(supplier.responseTime)}</b></span> // SECURITY FIX: XSS
               </div>
               
               <p style="font-size:13px; margin-top:16px; border-top:1px solid var(--gray-light); padding-top:12px; color:var(--gray-medium); font-style:italic;">
-                "${supplier.about}"
+                "${escapeHTML(supplier.about)}" // SECURITY FIX: XSS
               </p>
             </div>
 
@@ -2477,7 +2488,7 @@ class App {
           id: "noti-" + Date.now(),
           supplierId: listing.supplierId,
           title: "New Inquiry Recieved",
-          text: `${newInq.buyerName} submitted a new quote query for ${listing.commodity}.`,
+          text: `${newInq.buyerName} submitted a new quote query for ${escapeHTML(listing.commodity)}.`, // SECURITY FIX: XSS
           date: "Just now",
           read: false
         });
@@ -2546,11 +2557,11 @@ class App {
         <div style="background:white; border-radius:12px; border:1px solid var(--gray-border); padding:40px; margin-bottom:30px; display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:20px;">
           <div>
             <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-              <h1 style="font-size:32px; margin:0;">${supplier.name}</h1>
+              <h1 style="font-size:32px; margin:0;">${escapeHTML(supplier.name)}</h1> // SECURITY FIX: XSS
               ${supplier.verified === "verified" ? '<span class="verified-badge">✓ Verified</span>' : ''}
             </div>
-            <p style="color:var(--gray-medium); margin-top:8px;">📍 Operating District: <b>${supplier.district}, Madhya Pradesh</b> | Member since Jan 2025</p>
-            <p style="margin-top:20px; font-size:16px; line-height:1.6; max-width:800px; color:#444;">${supplier.about}</p>
+            <p style="color:var(--gray-medium); margin-top:8px;">📍 Operating District: <b>${escapeHTML(supplier.district)}, Madhya Pradesh</b> | Member since Jan 2025</p> // SECURITY FIX: XSS
+            <p style="margin-top:20px; font-size:16px; line-height:1.6; max-width:800px; color:#444;">${escapeHTML(supplier.about)}</p> // SECURITY FIX: XSS
             
             <div class="catalog-header-actions">
               <button class="btn btn-secondary btn-sm" id="catalog-download-pdf">📥 Download Digital Catalog</button>
@@ -2562,8 +2573,8 @@ class App {
             <div style="font-size:24px; font-weight:800; color:var(--saffron-primary);">⭐ ${supplier.rating}</div>
             <div style="font-size:12px; color:var(--gray-medium); margin-top:4px;">Supplier Rating (${supplier.reviewsCount} reviews)</div>
             <div style="margin-top:12px; border-top:1px solid var(--gray-border); padding-top:12px; font-size:13px; text-align:left; display:flex; flex-direction:column; gap:6px;">
-              <span>⚡ Response Rate: <b>${supplier.responseRate}</b></span>
-              <span>⏱️ Response Time: <b>${supplier.responseTime}</b></span>
+              <span>⚡ Response Rate: <b>${escapeHTML(supplier.responseRate)}</b></span> // SECURITY FIX: XSS
+              <span>⏱️ Response Time: <b>${escapeHTML(supplier.responseTime)}</b></span> // SECURITY FIX: XSS
             </div>
           </div>
         </div>
@@ -2707,8 +2718,8 @@ class App {
             <div class="catalog-card ${themeClass}">
               <div class="catalog-card-header">
                 <div>
-                  <span class="commodity-pill ${l.commodity.toLowerCase()}-pill">${l.commodity}</span>
-                  <h3 style="margin-top:8px; font-size:16px;">${l.title}</h3>
+                  <span class="commodity-pill ${l.commodity.toLowerCase()}-pill">${escapeHTML(l.commodity)}</span> // SECURITY FIX: XSS
+                  <h3 style="margin-top:8px; font-size:16px;">${escapeHTML(l.title)}</h3> // SECURITY FIX: XSS
                 </div>
                 <span style="font-size:11px; color:var(--gray-medium); white-space:nowrap;">${l.postedDaysAgo} days ago</span>
               </div>
@@ -2716,15 +2727,15 @@ class App {
                 <div class="catalog-specs-grid">
                   <div class="catalog-spec-item">
                     <span class="catalog-spec-lbl">Variety</span>
-                    <span class="catalog-spec-val">${l.variety}</span>
+                    <span class="catalog-spec-val">${escapeHTML(l.variety)}</span> // SECURITY FIX: XSS
                   </div>
                   <div class="catalog-spec-item">
                     <span class="catalog-spec-lbl">Moisture</span>
-                    <span class="catalog-spec-val">${l.moisture}</span>
+                    <span class="catalog-spec-val">${escapeHTML(l.moisture)}</span> // SECURITY FIX: XSS
                   </div>
                   <div class="catalog-spec-item">
                     <span class="catalog-spec-lbl">Grade</span>
-                    <span class="catalog-spec-val">${l.grade}</span>
+                    <span class="catalog-spec-val">${escapeHTML(l.grade)}</span> // SECURITY FIX: XSS
                   </div>
                   <div class="catalog-spec-item">
                     <span class="catalog-spec-lbl">Stock Vol</span>
@@ -2742,7 +2753,7 @@ class App {
               </div>
               <div class="catalog-card-actions">
                 <a href="#listing-detail/${l.id}" class="btn btn-outline btn-sm">View Details</a>
-                <button class="btn btn-primary btn-sm catalog-quote-btn" data-id="${l.id}" data-title="${l.title}" data-commodity="${l.commodity}" data-min="${l.minOrder}">Request Quote</button>
+                <button class="btn btn-primary btn-sm catalog-quote-btn" data-id="${l.id}" data-title="${escapeHTML(l.title)}" data-commodity="${escapeHTML(l.commodity)}" data-min="${l.minOrder}">Request Quote</button> // SECURITY FIX: XSS
               </div>
             </div>
           `;
@@ -2810,7 +2821,7 @@ class App {
           csvContent += "Commodity,Variety,Grade,Moisture,Price (per Quintal),Min Order (Quintals),Stock Quantity (Quintals)\r\n";
           
           listings.forEach(l => {
-            csvContent += `${l.commodity},${l.variety},${l.grade},${l.moisture},${l.price},${l.minOrder},${l.quantity}\r\n`;
+            csvContent += `${escapeHTML(l.commodity)},${escapeHTML(l.variety)},${escapeHTML(l.grade)},${escapeHTML(l.moisture)},${l.price},${l.minOrder},${l.quantity}\r\n`; // SECURITY FIX: XSS
           });
 
           const encodedUri = encodeURI(csvContent);
@@ -2843,7 +2854,7 @@ class App {
           return;
         }
 
-        if (confirm(`Would you like to send a direct inquiry to ${supplier.name} requesting their wholesale bulk contract price lists and off-mandi delivery terms?`)) {
+        if (confirm(`Would you like to send a direct inquiry to ${escapeHTML(supplier.name)} requesting their wholesale bulk contract price lists and off-mandi delivery terms?`)) { // SECURITY FIX: XSS
           // Seed custom pricing notification
           const notifications = LocalDB.getNotifications();
           notifications.unshift({
@@ -2916,7 +2927,7 @@ class App {
           id: "noti-" + Date.now(),
           supplierId: id,
           title: "New Inquiry Received",
-          text: `${newInq.buyerName} submitted an instant catalog quote request for ${targetListing.commodity}.`,
+          text: `${newInq.buyerName} submitted an instant catalog quote request for ${escapeHTML(targetListing.commodity)}.`, // SECURITY FIX: XSS
           date: "Just now",
           read: false
         });
@@ -3010,8 +3021,8 @@ class App {
           <!-- Left Column: Parameters & Inputs -->
           <div>
             <div style="background: rgba(8, 28, 54, 0.03); border: 1px solid rgba(8, 28, 54, 0.06); padding: 14px; border-radius: 8px; margin-bottom: 18px; font-size: 13.5px;">
-              <div style="font-weight: 700; font-size: 15px; margin-bottom: 4px; color: var(--charcoal);">${listing.title}</div>
-              <div style="color: var(--gray-medium); margin-bottom: 8px; font-size:12px;">📍 Taluka: ${listing.taluka}, District: ${listing.district}, MP</div>
+              <div style="font-weight: 700; font-size: 15px; margin-bottom: 4px; color: var(--charcoal);">${escapeHTML(listing.title)}</div> // SECURITY FIX: XSS
+              <div style="color: var(--gray-medium); margin-bottom: 8px; font-size:12px;">📍 Taluka: ${escapeHTML(listing.taluka)}, District: ${escapeHTML(listing.district)}, MP</div> // SECURITY FIX: XSS
               <div style="display:flex; justify-content:space-between; font-size: 13px;">
                 <span>Wholesale Price: <b style="color:var(--forest-secondary);">₹${listing.price.toLocaleString('en-IN')}/qtl</b></span>
                 <span>Available Stock: <b style="color:var(--charcoal);">${listing.quantity} qtl</b></span>
@@ -3083,7 +3094,7 @@ class App {
                 <div style="font-size: 12.5px; line-height: 1.6; color: var(--charcoal);">
                   <div style="margin-bottom: 6px; display:flex; justify-content:space-between;">
                     <span style="color:var(--gray-medium);">🏢 Buyer Entity:</span> 
-                    <span id="preview-buyer" style="font-weight:700; text-align:right;">${this.currentUser.name}</span>
+                    <span id="preview-buyer" style="font-weight:700; text-align:right;">${escapeHTML(this.currentUser.name)}</span> // SECURITY FIX: XSS
                   </div>
                   <div style="margin-bottom: 6px; display:flex; justify-content:space-between;">
                     <span style="color:var(--gray-medium);">🚜 Supplier Farm:</span> 
@@ -3091,7 +3102,7 @@ class App {
                   </div>
                   <div style="margin-bottom: 6px; display:flex; justify-content:space-between;">
                     <span style="color:var(--gray-medium);">🌾 Commodity Lot:</span> 
-                    <span style="font-weight:700; text-align:right;">${listing.commodity} (${listing.variety || 'FAQ Grade'})</span>
+                    <span style="font-weight:700; text-align:right;">${escapeHTML(listing.commodity)} (${listing.variety || 'FAQ Grade'})</span> // SECURITY FIX: XSS
                   </div>
                   <div style="margin-bottom: 6px; display:flex; justify-content:space-between;">
                     <span style="color:var(--gray-medium);">📦 Volume:</span> 
@@ -3266,7 +3277,7 @@ class App {
         id: "noti-" + Date.now(),
         supplierId: listing.supplierId,
         title: "🎉 New Bulk Order Placed!",
-        text: `${this.currentUser.name} placed a bulk order of ${q} quintals of ${listing.commodity} for ₹${(q * listing.price).toLocaleString('en-IN')}.`,
+        text: `${escapeHTML(this.currentUser.name)} placed a bulk order of ${q} quintals of ${escapeHTML(listing.commodity)} for ₹${(q * listing.price).toLocaleString('en-IN')}.`, // SECURITY FIX: XSS
         date: "Just now",
         read: false
       });
@@ -3292,7 +3303,7 @@ class App {
             <div class="sidebar-avatar">
               ${this.loggedSupplier.name.charAt(0)}
             </div>
-            <div class="sidebar-name">${this.loggedSupplier.name}</div>
+            <div class="sidebar-name">${escapeHTML(this.loggedSupplier.name)}</div> // SECURITY FIX: XSS
             <div style="margin-top:6px;">
               ${this.loggedSupplier.verified === 'verified' 
                 ? '<span class="verified-badge">✓ Verified</span>' 
@@ -3451,9 +3462,9 @@ class App {
 
     container.innerHTML = list.map(n => `
       <li class="dash-noti-item ${!n.read ? 'unread' : ''}">
-        <div class="dash-noti-item-title">${n.title}</div>
-        <p class="dash-noti-item-text">${n.text}</p>
-        <span class="dash-noti-item-time">${n.date}</span>
+        <div class="dash-noti-item-title">${escapeHTML(n.title)}</div> // SECURITY FIX: XSS
+        <p class="dash-noti-item-text">${escapeHTML(n.text)}</p> // SECURITY FIX: XSS
+        <span class="dash-noti-item-time">${escapeHTML(n.date)}</span> // SECURITY FIX: XSS
       </li>
     `).join('');
   }
@@ -3517,7 +3528,7 @@ class App {
 
     workspace.innerHTML = `
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 24px;">
-        <h3 style="font-size: 20px; font-weight:700;">Welcome, ${this.loggedSupplier.contactPerson}! 🌾</h3>
+        <h3 style="font-size: 20px; font-weight:700;">Welcome, ${escapeHTML(this.loggedSupplier.contactPerson)}! 🌾</h3> // SECURITY FIX: XSS
         <button class="btn btn-primary btn-sm" id="dash-quick-add-btn">➕ Add New Listing</button>
       </div>
 
@@ -3564,8 +3575,8 @@ class App {
               return `
                 <div style="border-bottom:1px solid var(--gray-light); padding:16px 0; display:flex; justify-content:space-between; align-items:center;">
                   <div>
-                    <h4 style="font-size:15px; font-weight:700;">${i.buyerName} — ${i.companyName}</h4>
-                    <span style="font-size:13px; color:var(--gray-medium);">Quantity: <b>${i.quantity} qtl</b> Soybean | Destination: <b>${i.location}</b></span>
+                    <h4 style="font-size:15px; font-weight:700;">${i.buyerName} — ${escapeHTML(i.companyName)}</h4> // SECURITY FIX: XSS
+                    <span style="font-size:13px; color:var(--gray-medium);">Quantity: <b>${i.quantity} qtl</b> Soybean | Destination: <b>${escapeHTML(i.location)}</b></span> // SECURITY FIX: XSS
                   </div>
                   <button class="btn btn-outline-saffron btn-sm dash-quick-reply-btn" data-inqid="${i.id}">Reply Inbox</button>
                 </div>
@@ -3679,8 +3690,8 @@ class App {
                         <div style="font-size:11px; color:var(--gray-medium); margin-top:2px;">${o.orderDate}</div>
                       </td>
                       <td>
-                        <b>${buyer.name}</b>
-                        <div style="font-size:11px; color:var(--gray-medium); margin-top:2px;">${buyer.companyName}</div>
+                        <b>${escapeHTML(buyer.name)}</b> // SECURITY FIX: XSS
+                        <div style="font-size:11px; color:var(--gray-medium); margin-top:2px;">${escapeHTML(buyer.companyName)}</div> // SECURITY FIX: XSS
                       </td>
                       <td>
                         <b>${listing ? listing.commodity : 'Crop'}</b>
@@ -3691,7 +3702,7 @@ class App {
                         <div style="font-size:11px; color:var(--gray-medium); margin-top:2px;">₹${o.totalAmount.toLocaleString('en-IN')}</div>
                       </td>
                       <td>
-                        <span style="font-size:12px;">💳 ${o.paymentTerms}</span>
+                        <span style="font-size:12px;">💳 ${escapeHTML(o.paymentTerms)}</span> // SECURITY FIX: XSS
                         <div style="font-size:11px; color:var(--gray-medium); margin-top:2px;">🚚 ${o.logisticsType.split(' ')[0]}</div>
                       </td>
                       <td>
@@ -3770,15 +3781,15 @@ class App {
             <div class="details">
               <div>
                 <h4>FROM (SUPPLIER PARTNER)</h4>
-                <b>${supplier.name}</b><br>
-                Contact: ${supplier.contactPerson}<br>
-                Phone: ${supplier.phone}<br>
-                Location: ${supplier.district}, MP
+                <b>${escapeHTML(supplier.name)}</b><br> // SECURITY FIX: XSS
+                Contact: ${escapeHTML(supplier.contactPerson)}<br> // SECURITY FIX: XSS
+                Phone: ${escapeHTML(supplier.phone)}<br> // SECURITY FIX: XSS
+                Location: ${escapeHTML(supplier.district)}, MP // SECURITY FIX: XSS
               </div>
               <div>
                 <h4>TO (BUYER)</h4>
-                <b>${buyer.name}</b><br>
-                Company: ${buyer.companyName}<br>
+                <b>${escapeHTML(buyer.name)}</b><br> // SECURITY FIX: XSS
+                Company: ${escapeHTML(buyer.companyName)}<br> // SECURITY FIX: XSS
                 Location: ${o.logisticsType === 'TradeVithika Freight Logistics' ? 'Door Delivery Destination' : 'Ex-Warehouse Collection'}
               </div>
             </div>
@@ -3807,7 +3818,7 @@ class App {
             </div>
 
             <div style="margin-top: 40px; padding: 15px; background: #f9f9f9; border-radius: 6px; font-size: 13px;">
-              📌 <b>Contract Note:</b> Payment via <b>${o.paymentTerms}</b>. Freight arranged via <b>${o.logisticsType}</b>.
+              📌 <b>Contract Note:</b> Payment via <b>${escapeHTML(o.paymentTerms)}</b>. Freight arranged via <b>${escapeHTML(o.logisticsType)}</b>. // SECURITY FIX: XSS
             </div>
 
             <div class="footer">
@@ -4043,8 +4054,8 @@ class App {
         <td style="text-align:center;">
           <input type="checkbox" class="dl-row-checkbox" data-listid="${l.id}" style="width:16px; height:16px; accent-color:var(--saffron-primary); cursor:pointer;" ${this.selectedListingIds.includes(l.id) ? 'checked' : ''}>
         </td>
-        <td><b>${l.title}</b></td>
-        <td>${l.commodity}</td>
+        <td><b>${escapeHTML(l.title)}</b></td> // SECURITY FIX: XSS
+        <td>${escapeHTML(l.commodity)}</td> // SECURITY FIX: XSS
         <td>
           <span class="inventory-editable" data-field="price" data-listid="${l.id}" title="Click to edit price">
             ₹${l.price.toLocaleString('en-IN')}
@@ -4299,13 +4310,13 @@ class App {
               id: "noti-" + Date.now(),
               supplierId: this.loggedSupplier.id,
               title: "⚠️ Stock Warning!",
-              text: `Warehouse Alert: "${listing.title}" stock level fell to ${newVal} qtl (under critical 150qtl threshold).`,
+              text: `Warehouse Alert: "${escapeHTML(listing.title)}" stock level fell to ${newVal} qtl (under critical 150qtl threshold).`, // SECURITY FIX: XSS
               date: "Just now",
               read: false
             });
             LocalDB.saveNotifications(notifications);
             this.updateBellNotificationBadge();
-            this.showToast(`⚠️ Low stock warning triggered for ${listing.commodity}!`);
+            this.showToast(`⚠️ Low stock warning triggered for ${escapeHTML(listing.commodity)}!`); // SECURITY FIX: XSS
           }
 
           this.showToast(`✅ Successfully updated ${field === 'price' ? 'wholesale rate' : 'stock quantity'} to ${field === 'price' ? '₹' + newVal.toLocaleString('en-IN') + '/qtl' : newVal + ' qtl'}!`);
@@ -4399,11 +4410,11 @@ class App {
               return `
                 <li class="inbox-item ${isActive ? 'active' : ''}" data-inqid="${i.id}">
                   <div class="inbox-item-header">
-                    <span>${i.date}</span>
+                    <span>${escapeHTML(i.date)}</span> // SECURITY FIX: XSS
                     ${isNew ? '<span class="status-pill status-active" style="padding:1px 6px; font-size:9px;">NEW</span>' : ''}
                   </div>
-                  <h4>${i.buyerName}</h4>
-                  <div class="inbox-item-desc">Req: ${i.quantity} qtl ${listing ? listing.commodity : ''} - ${i.location}</div>
+                  <h4>${escapeHTML(i.buyerName)}</h4> // SECURITY FIX: XSS
+                  <div class="inbox-item-desc">Req: ${i.quantity} qtl ${listing ? listing.commodity : ''} - ${escapeHTML(i.location)}</div> // SECURITY FIX: XSS
                 </li>
               `;
             }).join('')}
@@ -4483,15 +4494,15 @@ class App {
       <div class="inbox-main-header">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <h2 style="font-size:20px; font-weight:700;">${inq.buyerName}</h2>
-            <span style="font-size:13px; color:var(--gray-medium);">Company: <b>${inq.companyName}</b> | 📞 ${inq.phone}</span>
+            <h2 style="font-size:20px; font-weight:700;">${escapeHTML(inq.buyerName)}</h2> // SECURITY FIX: XSS
+            <span style="font-size:13px; color:var(--gray-medium);">Company: <b>${escapeHTML(inq.companyName)}</b> | 📞 ${escapeHTML(inq.phone)}</span> // SECURITY FIX: XSS
           </div>
           <div>
             <span class="status-pill status-${inq.status}">${inq.status}</span>
           </div>
         </div>
         <div style="margin-top:12px; background:var(--bg-light); padding:10px; border-radius:6px; font-size:13px; border:1px solid var(--gray-border);">
-          🌾 Inquiry against: <b>${listing ? listing.title : 'Deleted Listing'}</b> (Req: <b>${inq.quantity} quintals</b> to <b>${inq.location}</b>)
+          🌾 Inquiry against: <b>${listing ? listing.title : 'Deleted Listing'}</b> (Req: <b>${inq.quantity} quintals</b> to <b>${escapeHTML(inq.location)}</b>) // SECURITY FIX: XSS
           ${priceInfoHtml}
         </div>
       </div>
@@ -4536,9 +4547,9 @@ class App {
 
       <div class="inbox-main-body" id="inbox-messages-container" style="display:flex; flex-direction:column; margin-top:20px; border-top:1px solid var(--gray-light); padding-top:20px;">
         <div class="inbox-bubble" style="align-self:flex-start;">
-          <div style="font-weight:700; font-size:12px; color:var(--saffron-primary); margin-bottom:4px;">${inq.buyerName} (Buyer)</div>
-          <p style="font-size:14px;">${inq.message}</p>
-          <div style="font-size:10px; color:var(--gray-medium); text-align:right; margin-top:8px;">${inq.date}</div>
+          <div style="font-weight:700; font-size:12px; color:var(--saffron-primary); margin-bottom:4px;">${escapeHTML(inq.buyerName)} (Buyer)</div> // SECURITY FIX: XSS
+          <p style="font-size:14px;">${escapeHTML(inq.message)}</p> // SECURITY FIX: XSS
+          <div style="font-size:10px; color:var(--gray-medium); text-align:right; margin-top:8px;">${escapeHTML(inq.date)}</div> // SECURITY FIX: XSS
         </div>
 
         ${inq.replies.map(r => {
@@ -4553,8 +4564,8 @@ class App {
                 ${r.sender === 'supplier' ? 'You (Supplier)' : `${inq.buyerName} (Buyer)`}
                 ${isCounter ? '<span style="font-size:10px; background:var(--saffron-light); color:var(--saffron-hover); padding:1px 6px; border-radius:4px; margin-left:6px;">⚖️ Counter-Offer</span>' : ''}
               </div>
-              <p style="font-size:14px;">${r.text}</p>
-              <div style="font-size:10px; color:var(--gray-medium); text-align:right; margin-top:8px;">${r.date}</div>
+              <p style="font-size:14px;">${escapeHTML(r.text)}</p> // SECURITY FIX: XSS
+              <div style="font-size:10px; color:var(--gray-medium); text-align:right; margin-top:8px;">${escapeHTML(r.date)}</div> // SECURITY FIX: XSS
             </div>
           `;
         }).join('')}
@@ -4704,15 +4715,15 @@ class App {
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; font-size:13px; margin:24px 0; background:rgba(197,160,89,0.03); border:1px solid rgba(197,160,89,0.2); padding:20px; border-radius:6px;">
           <div>
             <span style="color:var(--gray-medium); display:block; font-size:11px; font-weight:600; text-transform:uppercase;">Buyer Entity</span>
-            <b style="font-size:14px; color:#081C36;">${inq.buyerName}</b>
-            <div style="color:#555; margin-top:2px;">Company: ${inq.companyName}</div>
-            <div style="color:#555;">Destination: ${inq.location}</div>
+            <b style="font-size:14px; color:#081C36;">${escapeHTML(inq.buyerName)}</b> // SECURITY FIX: XSS
+            <div style="color:#555; margin-top:2px;">Company: ${escapeHTML(inq.companyName)}</div> // SECURITY FIX: XSS
+            <div style="color:#555;">Destination: ${escapeHTML(inq.location)}</div> // SECURITY FIX: XSS
           </div>
           <div>
             <span style="color:var(--gray-medium); display:block; font-size:11px; font-weight:600; text-transform:uppercase;">Supplier Partner</span>
-            <b style="font-size:14px; color:#081C36;">${sup.name}</b>
-            <div style="color:#555; margin-top:2px;">Contact: ${sup.contactPerson}</div>
-            <div style="color:#555;">District: ${sup.district}, MP</div>
+            <b style="font-size:14px; color:#081C36;">${escapeHTML(sup.name)}</b> // SECURITY FIX: XSS
+            <div style="color:#555; margin-top:2px;">Contact: ${escapeHTML(sup.contactPerson)}</div> // SECURITY FIX: XSS
+            <div style="color:#555;">District: ${escapeHTML(sup.district)}, MP</div> // SECURITY FIX: XSS
           </div>
         </div>
 
@@ -4814,7 +4825,7 @@ class App {
         id: "noti-" + Date.now(),
         supplierId: inq.supplierId,
         title: "Deal Closed & Sales Order Generated!",
-        text: `Negotiation for ${inq.buyerName} closed. B2B sales order contract ${orderId} successfully generated ex-warehouse.`,
+        text: `Negotiation for ${escapeHTML(inq.buyerName)} closed. B2B sales order contract ${orderId} successfully generated ex-warehouse.`, // SECURITY FIX: XSS
         date: "Just now",
         read: false
       });
@@ -4862,15 +4873,15 @@ class App {
             <div class="party-grid">
               <div>
                 <span style="font-size:10px; color:#777; display:block; text-transform:uppercase; font-weight:bold;">Buyer Entity</span>
-                <b style="font-size:15px; color:#081C36;">${inq.buyerName}</b>
-                <div style="margin-top:4px;">Company: ${inq.companyName}</div>
-                <div>Destination: ${inq.location}</div>
+                <b style="font-size:15px; color:#081C36;">${escapeHTML(inq.buyerName)}</b> // SECURITY FIX: XSS
+                <div style="margin-top:4px;">Company: ${escapeHTML(inq.companyName)}</div> // SECURITY FIX: XSS
+                <div>Destination: ${escapeHTML(inq.location)}</div> // SECURITY FIX: XSS
               </div>
               <div>
                 <span style="font-size:10px; color:#777; display:block; text-transform:uppercase; font-weight:bold;">Supplier Partner</span>
-                <b style="font-size:15px; color:#081C36;">${sup.name}</b>
-                <div style="margin-top:4px;">Contact: ${sup.contactPerson}</div>
-                <div>District: ${sup.district}, MP</div>
+                <b style="font-size:15px; color:#081C36;">${escapeHTML(sup.name)}</b> // SECURITY FIX: XSS
+                <div style="margin-top:4px;">Contact: ${escapeHTML(sup.contactPerson)}</div> // SECURITY FIX: XSS
+                <div>District: ${escapeHTML(sup.district)}, MP</div> // SECURITY FIX: XSS
               </div>
             </div>
  
@@ -4943,7 +4954,7 @@ class App {
         <div class="dash-stat-card analytics-dark-panel" style="text-align:center;">
           <span class="dash-stat-label" style="color:rgba(255,255,255,0.7) !important;">Response Rate Meter</span>
           <div class="gauge-wrap" style="border-top-color:var(--forest-secondary);">
-            <span class="gauge-number">${this.loggedSupplier.responseRate}</span>
+            <span class="gauge-number">${escapeHTML(this.loggedSupplier.responseRate)}</span> // SECURITY FIX: XSS
           </div>
           <span style="font-size:11px; color:rgba(255,255,255,0.5);">Target: >90% reply frequency</span>
         </div>
@@ -4960,7 +4971,7 @@ class App {
         <div class="dash-stat-card analytics-dark-panel" style="text-align:center;">
           <span class="dash-stat-label" style="color:rgba(255,255,255,0.7) !important;">Response Speed Time</span>
           <div class="gauge-wrap" style="border-top-color:var(--saffron-primary);">
-            <span class="gauge-number" style="font-size:15px;">${this.loggedSupplier.responseTime}</span>
+            <span class="gauge-number" style="font-size:15px;">${escapeHTML(this.loggedSupplier.responseTime)}</span> // SECURITY FIX: XSS
           </div>
           <span style="font-size:11px; color:rgba(255,255,255,0.5); text-align:center;">Avg client reply latency</span>
         </div>
@@ -5483,23 +5494,23 @@ class App {
           <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:20px;">
             <div class="form-group">
               <label>Business Name*</label>
-              <input type="text" id="prof-name" class="form-input" required value="${this.loggedSupplier.name}">
+              <input type="text" id="prof-name" class="form-input" required value="${escapeHTML(this.loggedSupplier.name)}"> // SECURITY FIX: XSS
             </div>
             <div class="form-group">
               <label>Contact Person Full Name*</label>
-              <input type="text" id="prof-person" class="form-input" required value="${this.loggedSupplier.contactPerson}">
+              <input type="text" id="prof-person" class="form-input" required value="${escapeHTML(this.loggedSupplier.contactPerson)}"> // SECURITY FIX: XSS
             </div>
             <div class="form-group">
               <label>Phone Number* (OTP Verified)</label>
-              <input type="tel" id="prof-phone" class="form-input" required value="${this.loggedSupplier.phone}">
+              <input type="tel" id="prof-phone" class="form-input" required value="${escapeHTML(this.loggedSupplier.phone)}"> // SECURITY FIX: XSS
             </div>
             <div class="form-group">
               <label>Email Address</label>
-              <input type="email" id="prof-email" class="form-input" value="${this.loggedSupplier.email}">
+              <input type="email" id="prof-email" class="form-input" value="${escapeHTML(this.loggedSupplier.email)}"> // SECURITY FIX: XSS
             </div>
             <div class="form-group">
               <label>Primary District*</label>
-              <input type="text" id="prof-district" class="form-input" required value="${this.loggedSupplier.district}">
+              <input type="text" id="prof-district" class="form-input" required value="${escapeHTML(this.loggedSupplier.district)}"> // SECURITY FIX: XSS
             </div>
             <div class="form-group">
               <label>Business Type*</label>
@@ -5513,7 +5524,7 @@ class App {
           
           <div class="form-group" style="margin-top:20px;">
             <label>About Your Business*</label>
-            <textarea id="prof-about" class="form-textarea" required>${this.loggedSupplier.about}</textarea>
+            <textarea id="prof-about" class="form-textarea" required>${escapeHTML(this.loggedSupplier.about)}</textarea> // SECURITY FIX: XSS
           </div>
           
           <button type="submit" class="btn btn-primary" style="margin-top:16px;">Save Profile Changes</button>
@@ -5559,7 +5570,7 @@ class App {
 
     this.appRoot.innerHTML = `
       <div class="container" style="padding-top: 40px; padding-bottom: 80px;">
-        <h1 style="font-size:32px; margin-bottom:8px;">Welcome, ${buyerObj.name}! 🏢</h1>
+        <h1 style="font-size:32px; margin-bottom:8px;">Welcome, ${escapeHTML(buyerObj.name)}! 🏢</h1> // SECURITY FIX: XSS
         <p style="color:var(--gray-medium); margin-bottom:30px;">Manage bulk purchasing inquiries, check direct vendor responses, and review saved suppliers.</p>
 
         <div class="buyer-dash-grid">
@@ -5595,7 +5606,7 @@ class App {
                           <td><b>${list ? list.commodity : 'Deleted lot'}</b></td>
                           <td>${sup ? sup.name : 'Unknown supplier'}</td>
                           <td><b>${i.quantity} qtl</b></td>
-                          <td>${i.date}</td>
+                          <td>${escapeHTML(i.date)}</td> // SECURITY FIX: XSS
                           <td>
                             <span class="status-pill status-${i.status}">${i.status}</span>
                           </td>
@@ -5666,8 +5677,8 @@ class App {
                       </div>
 
                       <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:16px; margin-bottom:20px; background:var(--bg-light); padding:10px 12px; border-radius:6px; border:1px solid var(--gray-light); font-size:13px;">
-                        <div>💳 Payment: <b>${o.paymentTerms}</b></div>
-                        <div>🚚 Shipping: <b>${o.logisticsType}</b></div>
+                        <div>💳 Payment: <b>${escapeHTML(o.paymentTerms)}</b></div> // SECURITY FIX: XSS
+                        <div>🚚 Shipping: <b>${escapeHTML(o.logisticsType)}</b></div> // SECURITY FIX: XSS
                       </div>
 
                       <!-- cargo shipping progress timeline -->
@@ -5718,7 +5729,7 @@ class App {
                 <div style="margin-bottom:16px; display:flex; justify-content:space-between; align-items:center;">
                   <div>
                     <h5 style="font-size:14px; font-weight:700;">${s.name}</h5>
-                    <span style="font-size:12px; color:var(--gray-medium);">📍 ${s.district}</span>
+                    <span style="font-size:12px; color:var(--gray-medium);">📍 ${escapeHTML(s.district)}</span> // SECURITY FIX: XSS
                   </div>
                   <a href="#supplier-profile/${s.id}" class="btn btn-outline btn-sm" style="padding:4px 10px; font-size:11px;">View</a>
                 </div>
@@ -5781,8 +5792,8 @@ class App {
     chatContainer.style.display = "block";
     chatContainer.innerHTML = `
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h3 style="font-size:16px;">Chat with: <b>${sup ? sup.name : 'Supplier'}</b></h3>
-        <span style="font-size:13px; color:var(--gray-medium);">⚡ Usually replies in ${sup ? sup.responseTime : '4 hours'}</span>
+        <h3 style="font-size:16px;">Chat with: <b>${sup ? escapeHTML(sup.name) : 'Supplier'}</b></h3> // SECURITY FIX: XSS
+        <span style="font-size:13px; color:var(--gray-medium);">⚡ Usually replies in ${sup ? escapeHTML(sup.responseTime) : '4 hours'}</span> // SECURITY FIX: XSS
       </div>
 
       ${priceInfoHtml}
@@ -5791,17 +5802,17 @@ class App {
         <div class="buyer-chat-feed" id="buyer-chat-feed-box">
           <div class="buyer-chat-bubble buyer-chat-bubble-sent">
             <div style="font-size:11px; font-weight:700; color:var(--forest-secondary); margin-bottom:2px;">You</div>
-            <p>${inq.message}</p>
-            <span style="font-size:9px; color:var(--gray-medium); display:block; text-align:right; margin-top:4px;">${inq.date}</span>
+            <p>${escapeHTML(inq.message)}</p> // SECURITY FIX: XSS
+            <span style="font-size:9px; color:var(--gray-medium); display:block; text-align:right; margin-top:4px;">${escapeHTML(inq.date)}</span> // SECURITY FIX: XSS
           </div>
 
           ${inq.replies.map(r => `
             <div class="buyer-chat-bubble ${r.sender === 'supplier' ? 'buyer-chat-bubble-received' : 'buyer-chat-bubble-sent'}">
               <div style="font-size:11px; font-weight:700; color: ${r.sender === 'supplier' ? 'var(--saffron-primary)' : 'var(--forest-secondary)'}; margin-bottom:2px;">
-                ${r.sender === 'supplier' ? (sup ? sup.name : 'Supplier') : 'You'}
+                ${r.sender === 'supplier' ? (sup ? escapeHTML(sup.name) : 'Supplier') : 'You'} // SECURITY FIX: XSS
               </div>
-              <p>${r.text}</p>
-              <span style="font-size:9px; color:var(--gray-medium); display:block; text-align:right; margin-top:4px;">${r.date}</span>
+              <p>${escapeHTML(r.text)}</p> // SECURITY FIX: XSS
+              <span style="font-size:9px; color:var(--gray-medium); display:block; text-align:right; margin-top:4px;">${escapeHTML(r.date)}</span> // SECURITY FIX: XSS
             </div>
           `).join('')}
         </div>
@@ -5836,7 +5847,7 @@ class App {
           id: "noti-" + Date.now(),
           supplierId: target.supplierId,
           title: "Follow-up Received",
-          text: `${target.buyerName} sent a follow-up query: "${txt.slice(0, 30)}..."`,
+          text: `${escapeHTML(target.buyerName)} sent a follow-up query: "${txt.slice(0, 30)}..."`, // SECURITY FIX: XSS
           date: "Just now",
           read: false
         });
@@ -6021,19 +6032,19 @@ class App {
         <form id="reg-form-1">
           <div class="form-group">
             <label>Business / Farm Name*</label>
-            <input type="text" id="reg-name" class="form-input" required placeholder="E.g. Yadav Farms" value="${this.regData.name}">
+            <input type="text" id="reg-name" class="form-input" required placeholder="E.g. Yadav Farms" value="${escapeHTML(this.regData.name)}"> // SECURITY FIX: XSS
           </div>
           <div class="form-group">
             <label>Owner / Contact Person Full Name*</label>
-            <input type="text" id="reg-person" class="form-input" required placeholder="E.g. Nimesh Yadav" value="${this.regData.contactPerson}">
+            <input type="text" id="reg-person" class="form-input" required placeholder="E.g. Nimesh Yadav" value="${escapeHTML(this.regData.contactPerson)}"> // SECURITY FIX: XSS
           </div>
           <div class="form-group">
             <label>Mobile Phone Number*</label>
-            <input type="tel" id="reg-phone" class="form-input" required placeholder="10-digit number for OTP confirmation" value="${this.regData.phone}">
+            <input type="tel" id="reg-phone" class="form-input" required placeholder="10-digit number for OTP confirmation" value="${escapeHTML(this.regData.phone)}"> // SECURITY FIX: XSS
           </div>
           <div class="form-group">
             <label>Email Address*</label>
-            <input type="email" id="reg-email" class="form-input" required placeholder="Supplier login email" value="${this.regData.email}">
+            <input type="email" id="reg-email" class="form-input" required placeholder="Supplier login email" value="${escapeHTML(this.regData.email)}"> // SECURITY FIX: XSS
           </div>
           <div class="form-group">
             <label>District in MP*</label>
@@ -6209,7 +6220,7 @@ class App {
               responseRate: "100%",
               totalInquiries: 0,
               views: 1,
-              about: `Welcome to ${this.regData.name}! We supply bulk ${this.regData.commodities.join(' & ')} inside ${this.regData.district} district.`,
+              about: `Welcome to ${escapeHTML(this.regData.name)}! We supply bulk ${this.regData.commodities.join(' & ')} inside ${escapeHTML(this.regData.district)} district.`, // SECURITY FIX: XSS
               onboardingProgress: 25, 
               docsUploaded: {
                 aadhaar: false,
@@ -6283,7 +6294,7 @@ class App {
             responseRate: "100%",
             totalInquiries: 0,
             views: 1,
-            about: `Welcome to ${this.regData.name}! We supply bulk ${this.regData.commodities.join(' & ')} inside ${this.regData.district} district.`,
+            about: `Welcome to ${escapeHTML(this.regData.name)}! We supply bulk ${this.regData.commodities.join(' & ')} inside ${escapeHTML(this.regData.district)} district.`, // SECURITY FIX: XSS
             onboardingProgress: 25, 
             docsUploaded: {
               aadhaar: false,
@@ -6346,14 +6357,14 @@ class App {
           </div>
           <div style="padding: 20px; flex-grow: 1; display: flex; flex-direction: column;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-              <span class="status-pill" style="background: var(--saffron-light); color: var(--saffron-hover); font-weight: 700; font-size: 11px; padding: 2px 10px; border-radius: 20px;">${b.category}</span>
-              <span style="font-size: 11px; color: var(--gray-medium); font-weight: 500;">⏱️ ${b.readTime}</span>
+              <span class="status-pill" style="background: var(--saffron-light); color: var(--saffron-hover); font-weight: 700; font-size: 11px; padding: 2px 10px; border-radius: 20px;">${escapeHTML(b.category)}</span> // SECURITY FIX: XSS
+              <span style="font-size: 11px; color: var(--gray-medium); font-weight: 500;">⏱️ ${escapeHTML(b.readTime)}</span> // SECURITY FIX: XSS
             </div>
             <h3 style="font-size: 17px; font-weight: 700; color: var(--charcoal); margin-bottom: 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 48px;">
-              ${b.title}
+              ${escapeHTML(b.title)} // SECURITY FIX: XSS
             </h3>
             <p style="font-size: 13px; color: var(--gray-medium); margin-bottom: 16px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; flex-grow: 1;">
-              ${b.summary}
+              ${escapeHTML(b.summary)} // SECURITY FIX: XSS
             </p>
             <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--gray-light); padding-top: 12px; margin-top: auto;">
               <span style="font-size: 12px; color: var(--gray-medium); font-weight: 600;">👤 ${b.author.split(" (")[0]}</span>
@@ -6491,14 +6502,14 @@ class App {
             </div>
             <div style="padding: 20px; flex-grow: 1; display: flex; flex-direction: column;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <span class="status-pill" style="background: var(--saffron-light); color: var(--saffron-hover); font-weight: 700; font-size: 11px; padding: 2px 10px; border-radius: 20px;">${b.category}</span>
-                <span style="font-size: 11px; color: var(--gray-medium); font-weight: 500;">⏱️ ${b.readTime}</span>
+                <span class="status-pill" style="background: var(--saffron-light); color: var(--saffron-hover); font-weight: 700; font-size: 11px; padding: 2px 10px; border-radius: 20px;">${escapeHTML(b.category)}</span> // SECURITY FIX: XSS
+                <span style="font-size: 11px; color: var(--gray-medium); font-weight: 500;">⏱️ ${escapeHTML(b.readTime)}</span> // SECURITY FIX: XSS
               </div>
               <h3 style="font-size: 17px; font-weight: 700; color: var(--charcoal); margin-bottom: 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 48px;">
-                ${b.title}
+                ${escapeHTML(b.title)} // SECURITY FIX: XSS
               </h3>
               <p style="font-size: 13px; color: var(--gray-medium); margin-bottom: 16px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; flex-grow: 1;">
-                ${b.summary}
+                ${escapeHTML(b.summary)} // SECURITY FIX: XSS
               </p>
               <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--gray-light); padding-top: 12px; margin-top: auto;">
                 <span style="font-size: 12px; color: var(--gray-medium); font-weight: 600;">👤 ${b.author.split(" (")[0]}</span>
@@ -6598,15 +6609,15 @@ class App {
             <!-- Category & Read Time -->
             <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 20px; flex-wrap: wrap;">
               <span class="status-pill" style="background: var(--saffron-light); color: var(--saffron-hover); font-weight: 700; font-size: 11px; padding: 4px 12px; border-radius: 20px;">
-                ${blog.category}
+                ${escapeHTML(blog.category)} // SECURITY FIX: XSS
               </span>
-              <span style="color: var(--gray-medium); font-size: 13px; font-weight: 500;">⏱️ ${blog.readTime}</span>
-              <span style="color: var(--gray-medium); font-size: 13px; font-weight: 500;">📅 Published: ${blog.date}</span>
+              <span style="color: var(--gray-medium); font-size: 13px; font-weight: 500;">⏱️ ${escapeHTML(blog.readTime)}</span> // SECURITY FIX: XSS
+              <span style="color: var(--gray-medium); font-size: 13px; font-weight: 500;">📅 Published: ${escapeHTML(blog.date)}</span> // SECURITY FIX: XSS
             </div>
 
             <!-- Big Premium Title -->
             <h1 style="font-size: 32px; font-weight: 800; color: var(--charcoal); margin-bottom: 24px; line-height: 1.35; font-family: var(--font-heading);">
-              ${blog.title}
+              ${escapeHTML(blog.title)} // SECURITY FIX: XSS
             </h1>
 
             <!-- Author & Verified Bio -->
@@ -6615,7 +6626,7 @@ class App {
                 ${blog.author.charAt(0)}
               </div>
               <div>
-                <div style="font-weight: 700; color: var(--charcoal); font-size: 14.5px;">${blog.author}</div>
+                <div style="font-weight: 700; color: var(--charcoal); font-size: 14.5px;">${escapeHTML(blog.author)}</div> // SECURITY FIX: XSS
                 <div style="font-size: 12px; color: var(--forest-secondary); font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
                   🛡️ Verified TradeVithika Agritech Advisor
                 </div>
@@ -6664,19 +6675,19 @@ class App {
             ${tableVisual}
           </td>
           <td style="padding: 16px;">
-            <div style="font-weight: 600; font-size: 13.5px; color: var(--charcoal); line-height: 1.4; max-width: 350px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${b.title}">${b.title}</div>
-            <div style="font-size: 11px; color: var(--gray-medium); margin-top: 4px;">👤 ${b.author}</div>
+            <div style="font-weight: 600; font-size: 13.5px; color: var(--charcoal); line-height: 1.4; max-width: 350px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHTML(b.title)}">${escapeHTML(b.title)}</div> // SECURITY FIX: XSS
+            <div style="font-size: 11px; color: var(--gray-medium); margin-top: 4px;">👤 ${escapeHTML(b.author)}</div> // SECURITY FIX: XSS
           </td>
           <td style="padding: 16px;">
             <span class="status-pill" style="background: var(--saffron-light); color: var(--saffron-hover); font-weight: 700; font-size: 11px; padding: 2px 8px; border-radius: 12px;">
-              ${b.category}
+              ${escapeHTML(b.category)} // SECURITY FIX: XSS
             </span>
           </td>
           <td style="padding: 16px; font-size: 12.5px; color: var(--gray-medium); font-weight: 500;">
-            ${b.date}
+            ${escapeHTML(b.date)} // SECURITY FIX: XSS
           </td>
           <td style="padding: 16px; font-size: 12.5px; color: var(--gray-medium); font-weight: 500;">
-            ${b.readTime}
+            ${escapeHTML(b.readTime)} // SECURITY FIX: XSS
           </td>
           <td style="padding: 16px; text-align: right;">
             <button class="btn btn-outline btn-sm admin-blog-edit-btn" data-id="${b.id}" style="padding: 4px 8px; font-size: 12px; margin-right: 6px; cursor: pointer; border-radius: 4px; border-color: var(--saffron-primary); color: var(--saffron-primary);">✏️ Edit</button>
@@ -7036,9 +7047,9 @@ class App {
 
         if (!b) return;
 
-        if (confirm(`Are you sure you want to permanently delete the article: "${b.title}"?`)) {
+        if (confirm(`Are you sure you want to permanently delete the article: "${escapeHTML(b.title)}"?`)) { // SECURITY FIX: XSS
           LocalDB.deleteBlog(id);
-          this.showToast(`Deleted post: "${b.title}".`);
+          this.showToast(`Deleted post: "${escapeHTML(b.title)}".`); // SECURITY FIX: XSS
           
           const workspace = document.getElementById("admin-workspace");
           if (workspace) this.renderAdminBlogs(workspace);
@@ -7287,11 +7298,11 @@ class App {
       tableRows += `
         <tr style="border-bottom:1px solid var(--gray-border);">
           <td style="padding:16px; font-weight:600;">
-            <div style="font-size:14px; color:var(--dark);">${s.name}</div>
-            <div style="font-size:12px; color:var(--gray-medium); font-weight:normal;">Contact: ${s.contactPerson} (${s.phone})</div>
+            <div style="font-size:14px; color:var(--dark);">${escapeHTML(s.name)}</div> // SECURITY FIX: XSS
+            <div style="font-size:12px; color:var(--gray-medium); font-weight:normal;">Contact: ${escapeHTML(s.contactPerson)} (${escapeHTML(s.phone)})</div> // SECURITY FIX: XSS
           </td>
-          <td style="padding:16px; font-size:13.5px;">${s.district}</td>
-          <td style="padding:16px; font-size:13.5px;"><span style="background:#E3F2FD; color:#0D47A1; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:700;">${s.businessType}</span></td>
+          <td style="padding:16px; font-size:13.5px;">${escapeHTML(s.district)}</td> // SECURITY FIX: XSS
+          <td style="padding:16px; font-size:13.5px;"><span style="background:#E3F2FD; color:#0D47A1; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:700;">${escapeHTML(s.businessType)}</span></td> // SECURITY FIX: XSS
           <td style="padding:16px;">${docsHtml}</td>
           <td style="padding:16px;">
             <div style="display:flex; align-items:center; gap:8px;">
@@ -7430,14 +7441,14 @@ class App {
       tableRows += `
         <tr style="border-bottom:1px solid var(--gray-border);">
           <td style="padding:16px;">
-            <div style="font-weight:600; color:var(--dark); font-size:14px;">${l.title}</div>
-            <div style="font-size:12px; color:var(--gray-medium);">Variety: ${l.variety}</div>
+            <div style="font-weight:600; color:var(--dark); font-size:14px;">${escapeHTML(l.title)}</div> // SECURITY FIX: XSS
+            <div style="font-size:12px; color:var(--gray-medium);">Variety: ${escapeHTML(l.variety)}</div> // SECURITY FIX: XSS
           </td>
-          <td style="padding:16px; font-size:13.5px;">${l.commodity}</td>
-          <td style="padding:16px; font-size:13.5px; font-weight:600; color:var(--saffron-primary);">${supplier.name}</td>
+          <td style="padding:16px; font-size:13.5px;">${escapeHTML(l.commodity)}</td> // SECURITY FIX: XSS
+          <td style="padding:16px; font-size:13.5px; font-weight:600; color:var(--saffron-primary);">${escapeHTML(supplier.name)}</td> // SECURITY FIX: XSS
           <td style="padding:16px; font-size:13.5px; font-weight:700;">₹${l.price.toLocaleString()}/q</td>
           <td style="padding:16px; font-size:13.5px;">${l.quantity} quintals</td>
-          <td style="padding:16px; font-size:13.5px;">${l.district}</td>
+          <td style="padding:16px; font-size:13.5px;">${escapeHTML(l.district)}</td> // SECURITY FIX: XSS
           <td style="padding:16px;">
             <span class="status-pill ${statusClass}" style="font-size:11px; padding:3px 8px; border-radius:12px; font-weight:700;">${statusText}</span>
           </td>
@@ -7534,16 +7545,16 @@ class App {
 
       tableRows += `
         <tr style="border-bottom:1px solid var(--gray-border);">
-          <td style="padding:16px; font-size:13px; color:var(--gray-medium);">${i.date}</td>
+          <td style="padding:16px; font-size:13px; color:var(--gray-medium);">${escapeHTML(i.date)}</td> // SECURITY FIX: XSS
           <td style="padding:16px; max-width: 300px;">
-            <div style="font-weight:600; font-size:13.5px; color:var(--dark);">${listing.title}</div>
-            <div style="font-size:12.5px; color:var(--gray-medium); margin-top:4px; font-style:italic;">"${i.message}"</div>
+            <div style="font-weight:600; font-size:13.5px; color:var(--dark);">${escapeHTML(listing.title)}</div> // SECURITY FIX: XSS
+            <div style="font-size:12.5px; color:var(--gray-medium); margin-top:4px; font-style:italic;">"${escapeHTML(i.message)}"</div> // SECURITY FIX: XSS
           </td>
           <td style="padding:16px;">
-            <div style="font-weight:600; font-size:13.5px; color:var(--dark);">${i.buyerName}</div>
-            <div style="font-size:12px; color:var(--gray-medium);">${i.companyName}</div>
+            <div style="font-weight:600; font-size:13.5px; color:var(--dark);">${escapeHTML(i.buyerName)}</div> // SECURITY FIX: XSS
+            <div style="font-size:12px; color:var(--gray-medium);">${escapeHTML(i.companyName)}</div> // SECURITY FIX: XSS
           </td>
-          <td style="padding:16px; font-weight:600; font-size:13.5px; color:var(--saffron-primary);">${supplier.name}</td>
+          <td style="padding:16px; font-weight:600; font-size:13.5px; color:var(--saffron-primary);">${escapeHTML(supplier.name)}</td> // SECURITY FIX: XSS
           <td style="padding:16px; font-size:13.5px; font-weight:700;">${i.quantity} quintals</td>
           <td style="padding:16px;">
             <span class="status-pill ${statusClass}" style="font-size:11px; padding:3px 8px; border-radius:12px; font-weight:700;">${statusText}</span>
